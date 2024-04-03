@@ -8,6 +8,12 @@ object Fixtures {
       ncbiId = NcbiId(770315),
     )
 
+    val homo: Clade = Clade(
+      name = "Homo",
+      ncbiId = NcbiId(770309),
+      children = Set(human),
+    )
+
     val orangutan: Species = Species(
       name = "Sumatran orangutan",
       ncbiId = NcbiId(9601),
@@ -17,14 +23,17 @@ object Fixtures {
       name = "Gorilla",
       ncbiId = NcbiId(417965),
     )
+
     val chimpanzee: Species = Species(
       name = "Chimpanzee",
       ncbiId = NcbiId(417950),
     )
+
     val bonobo: Species = Species(
       name = "Bonobo",
       ncbiId = NcbiId(158484),
     )
+
     val pan: Clade = Clade(
       name = "Pan",
       ncbiId = NcbiId(417957),
@@ -33,15 +42,17 @@ object Fixtures {
         bonobo,
       ),
     )
+
     val homininae: Clade = Clade(
       name = "Homininae",
       ncbiId = NcbiId(312031),
       children = Set(
         gorilla,
         pan,
-        human,
+        homo,
       ),
     )
+
     val hominidae: Clade = Clade(
       name = "Hominidae",
       ncbiId = NcbiId(770311),
@@ -50,6 +61,7 @@ object Fixtures {
         homininae,
       ),
     )
+
     val tree: Tree = Tree(
       root = hominidae,
     )

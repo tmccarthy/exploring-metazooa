@@ -17,6 +17,11 @@ final case class Clade(
   children: Set[Taxon],
 ) extends Taxon {
   def asTree: Tree = Tree(this)
+
+  def childSpeciesTransative: Set[Species] = children.flatMap {
+    case clade: Clade     => clade.childSpeciesTransative
+    case species: Species => Set(species)
+  }
 }
 
 final case class Species(
@@ -96,17 +101,70 @@ final case class Tree private (
   def contains(taxon: Taxon): Boolean = parentLookup.contains(taxon)
 
   def parentOf(taxon: Taxon): NotInTreeOr[Option[Clade]] =
-    if (taxon == root) Right(None) else parentLookup.get(taxon).map(Some(_)).toRight(Tree.NotInTreeError)
+    if (taxon == root) Right(None) else parentLookup.get(taxon).map(Some(_)).toRight(Tree.NotInTreeError(taxon))
+
   def treeFrom(clade: Clade): NotInTreeOr[Tree] =
-    Either.cond(contains(clade), Tree(clade), Tree.NotInTreeError) // TODO could be optimised
+    Either.cond(contains(clade), Tree(clade), Tree.NotInTreeError(clade)) // TODO could be optimised
+
   def lineageOf(taxon: Taxon): NotInTreeOr[Lineage] =
+    listAllParentsRootFirstFor(taxon).map { cladesRootFirst =>
+      Lineage(cladesRootFirst) match {
+        case Right(lineage) => lineage
+        case Left(e)        => throw new AssertionError(e)
+      }
+    }
+
+  def mostRecentSharedClade(left: Taxon, right: Taxon): NotInTreeOr[Clade] =
+    for {
+      leftClades  <- listAllCladesRootFirstFor(left)
+      rightClades <- listAllCladesRootFirstFor(right)
+    } yield (leftClades zip rightClades)
+      .findLast { case (leftClade, rightClade) =>
+        leftClade == rightClade
+      }
+      .fold(
+        throw new AssertionError("No common shared clade in this tree, despite both taxons being part of tree"),
+      ) { case (mostRecentSharedClade, _) =>
+        mostRecentSharedClade
+      }
+
+  val basality: Ordering[Taxon] = new Ordering[Taxon] {
+    override def compare(left: Taxon, right: Taxon): Int = Tree.unsafeGet {
+      for {
+        leftUniqueTaxon  <- leastBasalTaxonContainingOnly(left)
+        rightUniqueTaxon <- leastBasalTaxonContainingOnly(right)
+
+        leftAllClades  <- listAllCladesRootFirstFor(leftUniqueTaxon)
+        rightAllClades <- listAllCladesRootFirstFor(rightUniqueTaxon)
+      } yield {
+        rightAllClades.size - leftAllClades.size
+      }
+    }
+  }
+
+  private def listAllParentsRootFirstFor(taxon: Taxon): NotInTreeOr[List[Clade]] =
     parentOf(taxon).map {
+      case Some(parent) => unsafeGet(listAllParentsRootFirstFor(parent)).appended(parent)
+      case None         => List.empty
+    }
+
+  private def listAllCladesRootFirstFor(taxon: Taxon): NotInTreeOr[List[Clade]] =
+    listAllParentsRootFirstFor(taxon).map { parents =>
+      taxon match {
+        case clade: Clade => parents.appended(clade)
+        case _: Species   => parents
+      }
+    }
+
+  private def leastBasalTaxonContainingOnly(taxon: Taxon): NotInTreeOr[Taxon] =
+    parentOf(taxon).map {
+      case None => taxon
       case Some(parent) =>
-        Lineage(unsafeGet(lineageOf(parent)).cladesRootFirst :+ parent) match {
-          case Right(lineage) => lineage
-          case Left(e)        => throw new AssertionError(e)
+        if (parent.childSpeciesTransative.size == 1) {
+          Tree.unsafeGet(leastBasalTaxonContainingOnly(parent))
+        } else {
+          taxon
         }
-      case None => Lineage.empty
     }
 
   object syntax {
@@ -116,10 +174,10 @@ final case class Tree private (
 }
 
 object Tree {
-  type NotInTreeOr[A] = Either[NotInTreeError.type, A]
-  case object NotInTreeError extends ProductException
+  type NotInTreeOr[A] = Either[NotInTreeError, A]
+  final case class NotInTreeError(taxon: Taxon) extends ProductException
 
-  private[tree] def unsafeGet[A](notInTreeOr: NotInTreeOr[A]): A = notInTreeOr match {
+  def unsafeGet[A](notInTreeOr: NotInTreeOr[A]): A = notInTreeOr match {
     case Right(a) => a
     case Left(e)  => throw new AssertionError(e)
   }
@@ -129,3 +187,10 @@ object Tree {
     def lineage: Lineage      = unsafeGet(tree.lineageOf(taxon))
   }
 }
+//
+//final case class Basality private (asInt: Int) extends AnyRef
+//
+//object Basality {
+//  implicit val ordering: Ordering[Basality] = Invariant[Ordering].imap(Ordering.Int)(Basality(_))(_.asInt)
+//  implicit val order: Order[Basality] = Invariant[Order].imap(Order[Int])(Basality(_))(_.asInt)
+//}
