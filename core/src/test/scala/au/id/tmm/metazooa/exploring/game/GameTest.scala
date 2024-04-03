@@ -84,8 +84,8 @@ class GameTest extends FunSuite {
       hints = Set(homininae, pan),
     )
 
-    assert(!state.hintsAvailable)
     assertEquals(Game.doMove(state, Move.Hint), Left(Move.RejectionReason.NoHintsAvailable))
+    assert(!state.hintsAvailable)
   }
 
   test("no hints available (guess at bottom level)") {
@@ -96,8 +96,8 @@ class GameTest extends FunSuite {
       hints = Set.empty,
     )
 
-    assert(!state.hintsAvailable)
     assertEquals(Game.doMove(state, Move.Hint), Left(Move.RejectionReason.NoHintsAvailable))
+    assert(!state.hintsAvailable)
   }
 
   test("hint after complete game") {

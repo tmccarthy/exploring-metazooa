@@ -128,6 +128,24 @@ final case class Tree private (
         mostRecentSharedClade
       }
 
+  def proximityTo(focus: Taxon): Ordering[Taxon] = new Ordering[Taxon] {
+    override def compare(left: Taxon, right: Taxon): Int =
+      Ordering[Int].compare(
+        unsafeGet(distance(focus, right)),
+        unsafeGet(distance(focus, left)),
+      )
+  }
+
+  def distance(focus: Taxon, test: Taxon): NotInTreeOr[Int] =
+    for {
+      commonClade       <- mostRecentSharedClade(focus, test)
+      allCladesForFocus <- listAllCladesRootFirstFor(focus)
+    } yield {
+      val lineageUniqueToFocus = allCladesForFocus.takeWhile(_ != commonClade)
+
+      lineageUniqueToFocus.size
+    }
+
   val basality: Ordering[Taxon] = new Ordering[Taxon] {
     override def compare(left: Taxon, right: Taxon): Int = Tree.unsafeGet {
       for {

@@ -9,10 +9,18 @@ final case class State(
   guesses: Set[Species],
   hints: Set[Clade],
 ) {
-  def isComplete: Boolean     = guesses.contains(answer)
-  def hintsAvailable: Boolean = ???
+  def isComplete: Boolean = guesses.contains(answer)
+  def hintsAvailable: Boolean = Game.doMove(this, Move.Hint) match {
+    case Left(Move.RejectionReason.GameComplete | Move.RejectionReason.NoHintsAvailable) => false
+    case Left(_) | Right(_)                                                              => true
+  }
 
-  def cladesCommonWithAnswer: DupelessSeq[Clade] = ???
+  private[game] def visibleCladesOrderedByProximityToGuess: DupelessSeq[Clade] = {
+    val visibleClades =
+      Set(tree.root) ++ guesses.map(guess => Tree.unsafeGet(tree.mostRecentSharedClade(guess, answer))) ++ hints
+
+    DupelessSeq.from(visibleClades).sorted(tree.proximityTo(answer))
+  }
 
 }
 
@@ -44,7 +52,25 @@ object Game {
         case Move.Guess(species) => doGuess(state, species)
       }
 
-  private def doHint(state: State): Either[Move.RejectionReason.NoHintsAvailable.type, State] = ???
+  private def doHint(state: State): Either[Move.RejectionReason.NoHintsAvailable.type, State] = {
+    val closestRevealedClade = state.visibleCladesOrderedByProximityToGuess.head
+
+    val potentialHint = closestRevealedClade.children
+      .collect { case c: Clade =>
+        c
+      }
+      .minOption(state.tree.proximityTo(state.answer))
+
+    potentialHint match {
+      case None => Left(Move.RejectionReason.NoHintsAvailable)
+      case Some(hint) =>
+        if (state.hints.contains(hint)) {
+          Left(Move.RejectionReason.NoHintsAvailable) // not sure this is possible
+        } else {
+          Right(state.copy(hints = state.hints + hint))
+        }
+    }
+  }
 
   private def doGuess(state: State, guess: Species): Either[Move.RejectionReason.AlreadyGuessed.type, State] =
     if (!state.tree.contains(guess)) {
