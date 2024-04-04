@@ -56,6 +56,7 @@ lazy val core = project
     libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-errors"           % tmmUtilsVersion,
     libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-cats"             % tmmUtilsVersion,
     libraryDependencies += "au.id.tmm.fetch"                 %% "fetch-core"                 % fetchVersion,
+    libraryDependencies += "au.id.tmm.fetch"                 %% "fetch-cache"                % fetchVersion,
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-core" % tmmCollectionsVersion,
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-cats" % tmmCollectionsVersion,
     libraryDependencies += "org.typelevel"                   %% "cats-effect"                % catsEffectVersion,
