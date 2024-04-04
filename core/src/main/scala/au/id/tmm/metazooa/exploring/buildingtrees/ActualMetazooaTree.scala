@@ -5,12 +5,14 @@ import java.nio.file.Path
 
 import au.id.tmm.collections.syntax.toIterableOps
 import au.id.tmm.fetch.files.Text
-import au.id.tmm.metazooa.exploring.tree.{NcbiId, Species, Tree}
+import au.id.tmm.metazooa.exploring.tree.{Clade, NcbiId, Species, Taxon, Tree}
 import au.id.tmm.utilities.errors.{ExceptionOr, GenericException}
 import au.id.tmm.utilities.errors.syntax.*
+import cats.NonEmptyTraverse.ops.toAllNonEmptyTraverseOps
 import cats.effect.IO
 import cats.implicits.toTraverseOps
 
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.util.matching.Regex
 
@@ -19,13 +21,10 @@ object ActualMetazooaTree {
   def make(cacheDir: Path): IO[Tree] =
     for {
       actualSpecies <- actualSpeciesRecords
-      actualSpeciesPerScientificName = actualSpecies
-        .map(speciesRecord => speciesRecord.scientificName -> speciesRecord)
-        .toMap
 
       ncbiDump <- NcbiDump.downloadedInto(cacheDir)
 
-      idPerActualSpeciesRecord <- lookupByName(ncbiDump, actualSpecies)(_.scientificName)
+      idPerActualSpeciesRecord <- lookupIdsByName(ncbiDump, actualSpecies)(_.scientificName)
 
       species <- actualSpecies.traverse(r =>
         idPerActualSpeciesRecord.get(r) match {
@@ -36,31 +35,52 @@ object ActualMetazooaTree {
 
       parentLookup <- ncbiDump.parentLookup
 
-    } yield ???
+      maybeRootUnnamedNode = makeTree(
+        species.toSet.map(ProcessedSpecies.apply),
+        identifyParent = {
+          case ProcessedSpecies(species) => parentLookup.parentOf(species.ncbiId)
+          case UnnamedClade(ncbiId, _) => parentLookup.parentOf(ncbiId)
+        },
+      )
 
-  private def makeTree[T_NATIVE, T_NODE](
-    bottomChildren: Set[T_NODE],
-    identifyParent: T_NODE => Option[T_NATIVE],
-    makeNode: (T_NATIVE, Set[T_NODE]) => T_NODE,
-  ): Option[T_NODE] = {
-    val childrenPerParents: Map[T_NATIVE, Set[T_NODE]] =
-      bottomChildren
+      rootUnnamedNode <- IO.fromEither(maybeRootUnnamedNode.toRight(GenericException("No root node")))
+
+      namesForUnnamedNodes <- lookupNamesById(ncbiDump, rootUnnamedNode.allChildrenRecursive)(_.ncbiId)
+
+      rootNode <- IO.fromEither(rootUnnamedNode.nameUsing(namesForUnnamedNodes))
+    } yield Tree(rootNode)
+
+  @tailrec
+  private def makeTree(
+    bottomOfTree: Set[PartiallyProcessedTaxon],
+    identifyParent: PartiallyProcessedTaxon => Option[NcbiId],
+  ): Option[UnnamedClade] = {
+    val childrenPerParentId: Map[NcbiId, Set[PartiallyProcessedTaxon]] =
+      bottomOfTree
         .groupBy(child => identifyParent(child))
-        .collect { case (Some(parent), children) =>
-          parent -> children
+        .collect {
+          case (Some(parent), children) => parent -> children
         }
 
-    val nodes = childrenPerParents.map { case (parent, children) =>
-      makeNode(parent, children)
-    }.toSet
+    val clades = childrenPerParentId
+      .map {
+        case (id, children) =>
+          UnnamedClade(
+            id,
+            children,
+          )
+      }
+      .toList
 
-    nodes.atMostOneOr(()) match {
+    clades.atMostOneOr(()) match {
       case Right(maybeRoot) => maybeRoot
-      case Left(_)          => makeTree(nodes, identifyParent, makeNode)
+      case Left(_)          => makeTree((clades: List[PartiallyProcessedTaxon]).toSet, identifyParent)
     }
   }
 
-  private def lookupByName[A](ncbiDump: NcbiDump, as: Iterable[A])(f: A => String): IO[Map[A, NcbiId]] = {
+  private def lookupNamesById[A](ncbiDump: NcbiDump, as: Iterable[A])(f: A => NcbiId): IO[Map[A, String]] = ???
+
+  private def lookupIdsByName[A](ncbiDump: NcbiDump, as: Iterable[A])(f: A => String): IO[Map[A, NcbiId]] = {
     val namesPerA: Map[String, A] = as.map(a => f(a) -> a).toMap
 
     ncbiDump.names
@@ -82,7 +102,7 @@ object ActualMetazooaTree {
       .evalMap {
         case ActualSpeciesRecord.Regex(commonName, scientificName) =>
           IO.pure(ActualSpeciesRecord(commonName, scientificName))
-        case badRow => IO.raiseError(GenericException(s"Bad row \" $ { badRow } \ ""))
+        case badRow => IO.raiseError(GenericException(s"Bad row '${badRow}'"))
       }
       .compile
       .to(ArraySeq)
@@ -96,10 +116,35 @@ object ActualMetazooaTree {
     val Regex: Regex = """"(.+)",(.+)"""".r
   }
 
+  sealed trait PartiallyProcessedTaxon {
+    def ncbiId: NcbiId
+  }
+
+  private final case class ProcessedSpecies(asSpecies: Species) extends PartiallyProcessedTaxon {
+    override def ncbiId: NcbiId = asSpecies.ncbiId
+  }
+
   private final case class UnnamedClade(
     ncbiId: NcbiId,
-    childSpecies: Set[Species],
-    childClades: Set[UnnamedClade],
-  )
+    children: Set[PartiallyProcessedTaxon],
+  ) extends PartiallyProcessedTaxon {
+    def allChildrenRecursive: Set[PartiallyProcessedTaxon] = children + children.collect {
+      case clade: UnnamedClade => clade.allChildrenRecursive
+    }
+
+    def nameUsing(names: Map[PartiallyProcessedTaxon, String]): ExceptionOr[Clade] = {
+      for {
+        name <- names.get(this).toRight(GenericException(s"No name for ${this.ncbiId}"))
+        children <- this.children.toList.traverse[ExceptionOr, Taxon] {
+          case ProcessedSpecies(species) => Right(species)
+          case clade: UnnamedClade => clade.nameUsing(names)
+        }
+      } yield Clade(
+        name,
+        this.ncbiId,
+        children.toSet
+      )
+    }
+  }
 
 }
