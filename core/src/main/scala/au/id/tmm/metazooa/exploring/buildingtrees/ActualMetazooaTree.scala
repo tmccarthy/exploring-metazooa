@@ -5,10 +5,8 @@ import java.nio.file.Path
 
 import au.id.tmm.collections.syntax.toIterableOps
 import au.id.tmm.fetch.files.Text
-import au.id.tmm.metazooa.exploring.tree.{Clade, NcbiId, Species, Taxon, Tree}
+import au.id.tmm.metazooa.exploring.tree.*
 import au.id.tmm.utilities.errors.{ExceptionOr, GenericException}
-import au.id.tmm.utilities.errors.syntax.*
-import cats.NonEmptyTraverse.ops.toAllNonEmptyTraverseOps
 import cats.effect.IO
 import cats.implicits.toTraverseOps
 
@@ -39,7 +37,7 @@ object ActualMetazooaTree {
         species.toSet.map(ProcessedSpecies.apply),
         identifyParent = {
           case ProcessedSpecies(species) => parentLookup.parentOf(species.ncbiId)
-          case UnnamedClade(ncbiId, _) => parentLookup.parentOf(ncbiId)
+          case UnnamedClade(ncbiId, _)   => parentLookup.parentOf(ncbiId)
         },
       )
 
@@ -58,19 +56,16 @@ object ActualMetazooaTree {
     val childrenPerParentId: Map[NcbiId, Set[PartiallyProcessedTaxon]] =
       bottomOfTree
         .groupBy(child => identifyParent(child))
-        .collect {
-          case (Some(parent), children) => parent -> children
+        .collect { case (Some(parent), children) =>
+          parent -> children
         }
 
-    val clades = childrenPerParentId
-      .map {
-        case (id, children) =>
-          UnnamedClade(
-            id,
-            children,
-          )
-      }
-      .toList
+    val clades = childrenPerParentId.map { case (id, children) =>
+      UnnamedClade(
+        id,
+        children,
+      )
+    }.toList
 
     clades.atMostOneOr(()) match {
       case Right(maybeRoot) => maybeRoot
@@ -128,23 +123,21 @@ object ActualMetazooaTree {
     ncbiId: NcbiId,
     children: Set[PartiallyProcessedTaxon],
   ) extends PartiallyProcessedTaxon {
-    def allChildrenRecursive: Set[PartiallyProcessedTaxon] = children + children.collect {
-      case clade: UnnamedClade => clade.allChildrenRecursive
-    }
+    def allChildrenRecursive: Set[PartiallyProcessedTaxon] = children + children
+      .collect { case clade: UnnamedClade => clade.allChildrenRecursive }
 
-    def nameUsing(names: Map[PartiallyProcessedTaxon, String]): ExceptionOr[Clade] = {
+    def nameUsing(names: Map[PartiallyProcessedTaxon, String]): ExceptionOr[Clade] =
       for {
         name <- names.get(this).toRight(GenericException(s"No name for ${this.ncbiId}"))
         children <- this.children.toList.traverse[ExceptionOr, Taxon] {
           case ProcessedSpecies(species) => Right(species)
-          case clade: UnnamedClade => clade.nameUsing(names)
+          case clade: UnnamedClade       => clade.nameUsing(names)
         }
       } yield Clade(
         name,
         this.ncbiId,
-        children.toSet
+        children.toSet,
       )
-    }
   }
 
 }
