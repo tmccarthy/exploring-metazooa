@@ -5,15 +5,64 @@ import au.id.tmm.utilities.errors.ProductException
 import cats.syntax.functor.*
 import cats.syntax.traverse.*
 import cats.{Hash, Invariant}
+import io.circe.syntax.KeyOps
+import io.circe.{Codec, Decoder, DecodingFailure, Encoder, Json}
 
 final case class NcbiId(asLong: Long) extends AnyRef
 
 object NcbiId {
   implicit val eq: Hash[NcbiId] = Invariant[Hash].imap(Hash[Long])(NcbiId.apply)(_.asLong)
+
+  implicit val codec: Codec[NcbiId] = Codec.from(
+    Decoder[Long].map(NcbiId.apply),
+    Encoder[Long].contramap(_.asLong),
+  )
 }
 
 sealed trait Taxon {
   def ncbiId: NcbiId
+}
+
+object Taxon {
+
+  implicit def decoder: Decoder[Taxon] = c =>
+    for {
+      name      <- c.get[String]("name")
+      ncbiId    <- c.get[NcbiId]("ncbiId")
+      taxonType <- c.get[String]("type")
+      taxon <- taxonType match {
+        case "clade" =>
+          for {
+            children <- c.get[Set[Taxon]]("children")(Decoder.decodeSet[Taxon](decoder))
+          } yield Clade(name, ncbiId, children)
+        case "species" => Right(Species(name, ncbiId))
+        case badType   => Left(DecodingFailure(s"Bad taxon type $badType", c.history))
+      }
+    } yield taxon
+
+  implicit def encoder: Encoder[Taxon] = {
+    case Clade(name, ncbiId, children) =>
+      Json.obj(
+        "type" := "clade",
+        "name" := name,
+        "ncbiId" := ncbiId,
+        "children" -> Encoder.encodeSet.apply(children),
+      )
+    case Species(name, ncbiId) =>
+      Json.obj(
+        "type" := "species",
+        "name" := name,
+        "ncbiId" := ncbiId,
+      )
+  }
+
+//  implicit val codec: Codec[Taxon] = Codec.from(
+//    Clade.codec.widen[Taxon] or Decoder[Species].widen[Taxon],
+//    {
+//      case clade: Clade => Encoder[Clade].apply(clade)
+//      case species: Species => Encoder[Species].apply(species)
+//    }
+//  )
 }
 
 final case class Clade(
@@ -27,12 +76,21 @@ final case class Clade(
     case clade: Clade     => clade.childSpeciesTransative
     case species: Species => Set(species)
   }
+
+}
+
+object Clade {
+//  val codec: Codec[Clade] = Codec.forProduct3("name", "ncbiId", "children")(Clade.apply)(c => (c.name, c.ncbiId, c.children))
 }
 
 final case class Species(
   name: String,
   ncbiId: NcbiId,
 ) extends Taxon
+
+object Species {
+//  val codec: Codec[Species] = Codec.forProduct2("name", "ncbiId")(Species.apply)(c => (c.name, c.ncbiId))
+}
 
 final case class Lineage private (
   cladesRootFirst: List[Clade],
@@ -209,11 +267,10 @@ object Tree {
     def parent: Option[Clade] = unsafeGet(tree.parentOf(taxon))
     def lineage: Lineage      = unsafeGet(tree.lineageOf(taxon))
   }
+
+  implicit val encoder: Encoder[Tree] = t => Json.obj("root" := (t.root: Taxon))
+  implicit val decoder: Decoder[Tree] = Decoder[Taxon].at("root").emap {
+    case root: Clade => Right(Tree(root))
+    case _: Species  => Left("Expected clade, found species")
+  }
 }
-//
-//final case class Basality private (asInt: Int) extends AnyRef
-//
-//object Basality {
-//  implicit val ordering: Ordering[Basality] = Invariant[Ordering].imap(Ordering.Int)(Basality(_))(_.asInt)
-//  implicit val order: Order[Basality] = Invariant[Order].imap(Order[Int])(Basality(_))(_.asInt)
-//}

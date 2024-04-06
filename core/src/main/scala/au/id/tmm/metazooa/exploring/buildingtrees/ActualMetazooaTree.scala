@@ -73,7 +73,6 @@ object ActualMetazooaTree {
     }
   }
 
-  // TODO this needs to get the first "scientific name" otherwise just choose any of them
   private def lookupNamesById[A](
     ncbiDump: NcbiDump,
     as: Iterable[A],
