@@ -3,14 +3,12 @@ package au.id.tmm.metazooa.exploring.buildingtrees
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-import au.id.tmm.collections.syntax.toIterableOps
 import au.id.tmm.fetch.files.Text
 import au.id.tmm.metazooa.exploring.tree.*
 import au.id.tmm.utilities.errors.{ExceptionOr, GenericException}
 import cats.effect.IO
 import cats.implicits.toTraverseOps
 
-import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.util.matching.Regex
 
