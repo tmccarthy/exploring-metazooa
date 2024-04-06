@@ -32,12 +32,19 @@ class NcbiDump private (dumpZipPath: Path) {
       }
 
   val parents: fs2.Stream[IO, (NcbiId, NcbiId)] =
-    mapCellsFor("nodes.dmp") { cells =>
-      val child: NcbiId  = NcbiId(cells.apply(0).trim.toLong)
-      val parent: NcbiId = NcbiId(cells.apply(1).trim.toLong)
+    linesFor("nodes.dmp")
+      .flatMap { line =>
+        val cells = line.split('|')
 
-      child -> parent
-    }
+        val child: NcbiId  = NcbiId(cells.apply(0).trim.toLong)
+        val parent: NcbiId = NcbiId(cells.apply(1).trim.toLong)
+
+        if (child == parent) {
+          fs2.Stream.empty
+        } else {
+          fs2.Stream(child -> parent)
+        }
+      }
 
   val parentLookup: IO[NcbiDump.ParentLookup] = {
     parents.compile

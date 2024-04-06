@@ -43,35 +43,19 @@ object ActualMetazooaTree {
 
       rootUnnamedNode <- IO.fromEither(maybeRootUnnamedNode.toRight(GenericException("No root node")))
 
-      namesForUnnamedNodes <- lookupNamesById(ncbiDump, rootUnnamedNode.allChildrenRecursive)(_.ncbiId)
+      namesForUnnamedNodes <- lookupNamesById(
+        ncbiDump,
+        rootUnnamedNode.allChildrenRecursive + rootUnnamedNode,
+      )(_.ncbiId)
 
       rootNode <- IO.fromEither(rootUnnamedNode.nameUsing(namesForUnnamedNodes))
     } yield Tree(rootNode)
 
-  @tailrec
+  // TODO there's a bug here
   private def makeTree(
     bottomOfTree: Set[PartiallyProcessedTaxon],
     identifyParent: PartiallyProcessedTaxon => Option[NcbiId],
-  ): Option[UnnamedClade] = {
-    val childrenPerParentId: Map[NcbiId, Set[PartiallyProcessedTaxon]] =
-      bottomOfTree
-        .groupBy(child => identifyParent(child))
-        .collect { case (Some(parent), children) =>
-          parent -> children
-        }
-
-    val clades = childrenPerParentId.map { case (id, children) =>
-      UnnamedClade(
-        id,
-        children,
-      )
-    }.toList
-
-    clades.atMostOneOr(()) match {
-      case Right(maybeRoot) => maybeRoot
-      case Left(_)          => makeTree((clades: List[PartiallyProcessedTaxon]).toSet, identifyParent)
-    }
-  }
+  ): Option[UnnamedClade] = ???
 
   private def lookupNamesById[A](
     ncbiDump: NcbiDump,
