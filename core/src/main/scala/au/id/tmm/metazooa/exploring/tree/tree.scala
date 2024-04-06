@@ -4,8 +4,13 @@ import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeOr, unsafeGet}
 import au.id.tmm.utilities.errors.ProductException
 import cats.syntax.functor.*
 import cats.syntax.traverse.*
+import cats.{Hash, Invariant}
 
 final case class NcbiId(asLong: Long) extends AnyRef
+
+object NcbiId {
+  implicit val eq: Hash[NcbiId] = Invariant[Hash].imap(Hash[Long])(NcbiId.apply)(_.asLong)
+}
 
 sealed trait Taxon {
   def ncbiId: NcbiId

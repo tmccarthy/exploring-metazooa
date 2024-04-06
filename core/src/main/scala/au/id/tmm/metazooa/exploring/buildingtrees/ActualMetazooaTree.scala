@@ -73,7 +73,29 @@ object ActualMetazooaTree {
     }
   }
 
-  private def lookupNamesById[A](ncbiDump: NcbiDump, as: Iterable[A])(f: A => NcbiId): IO[Map[A, String]] = ???
+  // TODO this needs to get the first "scientific name" otherwise just choose any of them
+  private def lookupNamesById[A](
+    ncbiDump: NcbiDump,
+    as: Iterable[A],
+  )(
+    idFrom: A => NcbiId,
+  ): IO[Map[NcbiId, String]] = {
+    val idsPerA: Map[NcbiId, A] = as.groupBy(idFrom).view.mapValues(_.head).toMap
+
+    ncbiDump.names
+      .groupAdjacentBy(_.ncbiId)
+      .flatMap { case (id, names) =>
+        fs2.Stream.fromOption {
+          idsPerA.get(id).map { a =>
+            val chosenName = names.apply(names.indexWhere(_.nameType == NcbiDump.Name.Type.ScientificName).getOrElse(0))
+
+            idFrom(a) -> chosenName.name
+          }
+        }
+      }
+      .compile
+      .to(Map)
+  }
 
   private def lookupIdsByName[A](ncbiDump: NcbiDump, as: Iterable[A])(f: A => String): IO[Map[A, NcbiId]] = {
     val namesPerA: Map[String, A] = as.map(a => f(a) -> a).toMap
@@ -82,7 +104,7 @@ object ActualMetazooaTree {
       .mapChunks { chunk =>
         val relevantNames = chunk.filter(name => namesPerA.contains(name.name))
 
-        relevantNames.map { case NcbiDump.Name(ncbiId, name) =>
+        relevantNames.map { case NcbiDump.Name(ncbiId, name, _) =>
           namesPerA(name) -> ncbiId
         }
       }
@@ -92,7 +114,7 @@ object ActualMetazooaTree {
 
   private val actualSpeciesRecords: IO[ArraySeq[ActualSpeciesRecord]] =
     fs2.io
-      .readClassLoaderResource[IO]("au.id.tmm.metazooa.exploring.buildingtrees.actual-metazooa-species.csv")
+      .readClassResource[IO, ActualMetazooaTree.type]("actual-metazooa-species.csv")
       .through(Text.lines(StandardCharsets.UTF_8))
       .evalMap {
         case ActualSpeciesRecord.Regex(commonName, scientificName) =>
@@ -108,7 +130,7 @@ object ActualMetazooaTree {
   )
 
   private object ActualSpeciesRecord {
-    val Regex: Regex = """"(.+)",(.+)"""".r
+    val Regex: Regex = """"(.+)","(.+)"""".r
   }
 
   sealed trait PartiallyProcessedTaxon {
@@ -123,12 +145,15 @@ object ActualMetazooaTree {
     ncbiId: NcbiId,
     children: Set[PartiallyProcessedTaxon],
   ) extends PartiallyProcessedTaxon {
-    def allChildrenRecursive: Set[PartiallyProcessedTaxon] = children + children
-      .collect { case clade: UnnamedClade => clade.allChildrenRecursive }
+    def allChildrenRecursive: Set[PartiallyProcessedTaxon] = children ++ children
+      .flatMap {
+        case clade: UnnamedClade => clade.allChildrenRecursive
+        case _: ProcessedSpecies => Set.empty
+      }: Set[PartiallyProcessedTaxon]
 
-    def nameUsing(names: Map[PartiallyProcessedTaxon, String]): ExceptionOr[Clade] =
+    def nameUsing(names: Map[NcbiId, String]): ExceptionOr[Clade] =
       for {
-        name <- names.get(this).toRight(GenericException(s"No name for ${this.ncbiId}"))
+        name <- names.get(this.ncbiId).toRight(GenericException(s"No name for ${this.ncbiId}"))
         children <- this.children.toList.traverse[ExceptionOr, Taxon] {
           case ProcessedSpecies(species) => Right(species)
           case clade: UnnamedClade       => clade.nameUsing(names)

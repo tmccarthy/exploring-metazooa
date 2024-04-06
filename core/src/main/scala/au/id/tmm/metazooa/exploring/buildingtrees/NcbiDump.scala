@@ -33,8 +33,8 @@ class NcbiDump private (dumpZipPath: Path) {
 
   val parents: fs2.Stream[IO, (NcbiId, NcbiId)] =
     mapCellsFor("nodes.dmp") { cells =>
-      val child: NcbiId  = NcbiId(cells.apply(0).trim.toInt)
-      val parent: NcbiId = NcbiId(cells.apply(1).trim.toInt)
+      val child: NcbiId  = NcbiId(cells.apply(0).trim.toLong)
+      val parent: NcbiId = NcbiId(cells.apply(1).trim.toLong)
 
       child -> parent
     }
@@ -48,8 +48,9 @@ class NcbiDump private (dumpZipPath: Path) {
   val names: fs2.Stream[IO, NcbiDump.Name] =
     mapCellsFor("names.dmp") { cells =>
       NcbiDump.Name(
-        ncbiId = NcbiId(cells.apply(0).trim.toInt),
+        ncbiId = NcbiId(cells.apply(0).trim.toLong),
         name = cells.apply(1).trim,
+        nameType = NcbiDump.Name.Type.parse(cells.apply(3).trim),
       )
     }
 
@@ -65,8 +66,44 @@ object NcbiDump {
     ncbiId: NcbiId,
     name: String,
     // TODO unique name
-    // TODO name type
+    nameType: Name.Type,
   )
+
+  object Name {
+    sealed abstract class Type(val asString: String)
+
+    object Type {
+      case object Acronym                              extends Type("acronym")
+      case object Authority                            extends Type("authority")
+      case object BlastName                            extends Type("blast name")
+      case object CommonName                           extends Type("common name")
+      case object EquivalentName                       extends Type("equivalent name")
+      case object GenbankAcronym                       extends Type("genbank acronym")
+      case object GenbankCommonName                    extends Type("genbank common name")
+      case object Inpart                               extends Type("in-part")
+      case object Includes                             extends Type("includes")
+      case object ScientificName                       extends Type("scientific name")
+      case object Synonym                              extends Type("synonym")
+      case object TypeMaterial                         extends Type("type material")
+      final case class Other(unrecognisedCode: String) extends Type(unrecognisedCode)
+
+      def parse(code: String): Type = code match {
+        case Acronym.asString           => Acronym
+        case Authority.asString         => Authority
+        case BlastName.asString         => BlastName
+        case CommonName.asString        => CommonName
+        case EquivalentName.asString    => EquivalentName
+        case GenbankAcronym.asString    => GenbankAcronym
+        case GenbankCommonName.asString => GenbankCommonName
+        case Inpart.asString            => Inpart
+        case Includes.asString          => Includes
+        case ScientificName.asString    => ScientificName
+        case Synonym.asString           => Synonym
+        case TypeMaterial.asString      => TypeMaterial
+        case unrecognisedCode           => Other(unrecognisedCode)
+      }
+    }
+  }
 
   def downloadedInto(directory: Path, replaceExisting: Boolean = false): IO[NcbiDump] =
     for {
