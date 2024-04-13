@@ -13,6 +13,7 @@ object Rules {
   val infinite: Rules = standard.copy(gameOverAt = None)
 }
 
+// TODO could probably find a type-safe way to avoid leaking the answer to strategies
 final case class State(
   rules: Rules,
   tree: Tree,
@@ -30,8 +31,6 @@ final case class State(
 
 }
 
-object State {}
-
 sealed trait Move
 
 object Move {
@@ -41,6 +40,7 @@ object Move {
 
   sealed trait RejectionReason
 
+  // TODO needs a "you ran out" reason
   object RejectionReason {
     case object GameComplete     extends RejectionReason
     case object NoHintsAvailable extends RejectionReason
