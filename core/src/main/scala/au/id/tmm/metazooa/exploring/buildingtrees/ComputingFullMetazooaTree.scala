@@ -17,9 +17,12 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.matching.Regex
 
-object ActualMetazooaTree {
+/**
+  * Computes the full metazooa tree from a list of species/ncbi IDs stored in a resource
+  */
+private[buildingtrees] object ComputingFullMetazooaTree {
 
-  def make(cacheDir: Path): IO[Tree] =
+  def buildFromNcbi(cacheDir: Path): IO[Tree] =
     for {
       actualSpecies <- actualSpeciesRecords
       actualSpecies <-
@@ -144,7 +147,7 @@ object ActualMetazooaTree {
 
   private val actualSpeciesRecords: IO[ArraySeq[ActualSpeciesRecord]] =
     fs2.io
-      .readClassResource[IO, ActualMetazooaTree.type]("actual-metazooa-species.csv")
+      .readClassResource[IO, ComputingFullMetazooaTree.type]("actual-metazooa-species.csv")
       .through(Text.lines(StandardCharsets.UTF_8))
       .evalMap {
         case ActualSpeciesRecord.Regex(commonName, scientificName) =>

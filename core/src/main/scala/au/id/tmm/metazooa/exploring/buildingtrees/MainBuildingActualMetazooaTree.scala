@@ -12,7 +12,7 @@ object MainBuildingActualMetazooaTree extends IOApp.Simple {
   override def run: IO[Unit] =
     for {
       cachePath <- IO(Paths.get("cache"))
-      tree      <- ActualMetazooaTree.make(cachePath)
+      tree      <- ComputingFullMetazooaTree.buildFromNcbi(cachePath)
       treeBytes = tree.asJson.printWith(Printer.spaces2).getBytes(StandardCharsets.UTF_8)
       outputPath <- IO(Files.createTempFile("tree", ".json"))
       _          <- IO(Files.write(outputPath, treeBytes))

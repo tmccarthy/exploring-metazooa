@@ -3,13 +3,19 @@ package au.id.tmm.metazooa.exploring.game
 import au.id.tmm.utilities.testing.syntax.*
 import au.id.tmm.metazooa.exploring.tree.Fixtures.GreatApes
 import au.id.tmm.metazooa.exploring.tree.Fixtures.GreatApes.*
+import au.id.tmm.metazooa.exploring.tree.{Clade, Species}
 import munit.FunSuite
 
 class GameTest extends FunSuite {
 
+  private def makeStateWith(
+    answer: Species,
+    guesses: Set[Species],
+    hints: Set[Clade],
+  ): State = State(Rules.infinite, GreatApes.tree, answer, guesses, hints)
+
   test("wrong guess") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = human,
       guesses = Set.empty,
       hints = Set.empty,
@@ -23,8 +29,7 @@ class GameTest extends FunSuite {
   }
 
   test("correct guess") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = human,
       guesses = Set.empty,
       hints = Set.empty,
@@ -40,8 +45,7 @@ class GameTest extends FunSuite {
   }
 
   test("re-guess") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = human,
       guesses = Set(orangutan),
       hints = Set.empty,
@@ -51,8 +55,7 @@ class GameTest extends FunSuite {
   }
 
   test("guess after complete game") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = human,
       guesses = Set(orangutan, human),
       hints = Set.empty,
@@ -62,8 +65,7 @@ class GameTest extends FunSuite {
   }
 
   test("hint") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = human,
       guesses = Set.empty,
       hints = Set.empty,
@@ -77,8 +79,7 @@ class GameTest extends FunSuite {
   }
 
   test("no hints available (hint at bottom level)") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = bonobo,
       guesses = Set.empty,
       hints = Set(homininae, pan),
@@ -89,8 +90,7 @@ class GameTest extends FunSuite {
   }
 
   test("no hints available (guess at bottom level)") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = bonobo,
       guesses = Set(chimpanzee),
       hints = Set.empty,
@@ -101,8 +101,7 @@ class GameTest extends FunSuite {
   }
 
   test("hint after complete game") {
-    val state = State(
-      GreatApes.tree,
+    val state = makeStateWith(
       answer = human,
       guesses = Set(human),
       hints = Set.empty,

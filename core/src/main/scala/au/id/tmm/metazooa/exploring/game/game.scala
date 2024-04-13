@@ -1,9 +1,20 @@
 package au.id.tmm.metazooa.exploring.game
 
-import au.id.tmm.collections.DupelessSeq
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
 
+final case class Rules(
+  guessCost: Int,
+  hintCost: Int,
+  gameOverAt: Option[Int],
+)
+
+object Rules {
+  val standard: Rules = Rules(guessCost = 1, hintCost = 3, gameOverAt = Some(20))
+  val infinite: Rules = standard.copy(gameOverAt = None)
+}
+
 final case class State(
+  rules: Rules,
   tree: Tree,
   answer: Species,
   guesses: Set[Species],
@@ -15,12 +26,7 @@ final case class State(
     case Left(_) | Right(_)                                                              => true
   }
 
-  private[game] def visibleCladesOrderedByProximityToGuess: DupelessSeq[Clade] = {
-    val visibleClades =
-      Set(tree.root) ++ guesses.map(guess => Tree.unsafeGet(tree.mostRecentSharedClade(guess, answer))) ++ hints
-
-    DupelessSeq.from(visibleClades).sorted(tree.proximityTo(answer))
-  }
+  def applyMove(move: Move): Either[Move.RejectionReason, State] = Game.doMove(this, move)
 
 }
 
@@ -53,7 +59,7 @@ object Game {
       }
 
   private def doHint(state: State): Either[Move.RejectionReason.NoHintsAvailable.type, State] = {
-    val closestRevealedClade = state.visibleCladesOrderedByProximityToGuess.head
+    val closestRevealedClade = GameUtilities.closestRevealedClade(state)
 
     val potentialHint = closestRevealedClade.children
       .collect { case c: Clade =>
