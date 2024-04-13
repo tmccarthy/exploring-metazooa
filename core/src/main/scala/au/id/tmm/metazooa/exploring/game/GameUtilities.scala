@@ -30,7 +30,7 @@ object GameUtilities {
 
     val cladeContainingAnswer = closestRevealedClade(state)
 
-    cladeContainingAnswer.children
+    val speciesUnderPossibleClades = cladeContainingAnswer.children
       .flatMap {
         case species: Species => Set(species)
         case clade: Clade =>
@@ -44,6 +44,8 @@ object GameUtilities {
             clade.childSpeciesTransative
           }
       }
+
+    speciesUnderPossibleClades -- state.guesses
   }
 
 }
