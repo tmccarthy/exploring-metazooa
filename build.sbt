@@ -25,7 +25,6 @@ ThisBuild / githubWorkflowJavaVersions := List(
 ThisBuild / tlCiHeaderCheck := false
 ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiMimaBinaryIssueCheck := false
-ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / tlFatalWarnings := true
 
 addCommandAlias("check", ";githubWorkflowCheck;scalafmtSbtCheck;+scalafmtCheckAll;+test")
