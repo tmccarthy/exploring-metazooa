@@ -3,13 +3,18 @@ package au.id.tmm.metazooa.exploring.buildingtrees
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
+import au.id.tmm.collections.{NonEmptyArraySeq, NonEmptySet}
+import au.id.tmm.collections.cats.instances.nonEmptyArraySeq.*
 import au.id.tmm.fetch.files.Text
 import au.id.tmm.metazooa.exploring.tree.*
 import au.id.tmm.utilities.errors.{ExceptionOr, GenericException}
+import cats.implicits.toNonEmptyTraverseOps
 import cats.effect.IO
 import cats.implicits.toTraverseOps
 
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.util.matching.Regex
 
 object ActualMetazooaTree {
@@ -17,12 +22,14 @@ object ActualMetazooaTree {
   def make(cacheDir: Path): IO[Tree] =
     for {
       actualSpecies <- actualSpeciesRecords
+      actualSpecies <-
+        IO.fromOption(NonEmptyArraySeq.fromArraySeq(actualSpecies))(GenericException("Empty species list"))
 
       ncbiDump <- NcbiDump.downloadedInto(cacheDir)
 
-      idPerActualSpeciesRecord <- lookupIdsByName(ncbiDump, actualSpecies)(_.scientificName)
+      idPerActualSpeciesRecord <- lookupIdsByName(ncbiDump, actualSpecies.underlying)(_.scientificName)
 
-      species <- actualSpecies.traverse(r =>
+      species <- actualSpecies.nonEmptyTraverse(r =>
         idPerActualSpeciesRecord.get(r) match {
           case Some(id) => IO.pure(Species(r.commonName, id))
           case None     => IO.raiseError(GenericException(s"No name found for $r"))
@@ -31,15 +38,10 @@ object ActualMetazooaTree {
 
       parentLookup <- ncbiDump.parentLookup
 
-      maybeRootUnnamedNode = makeTree(
-        species.toSet.map(ProcessedSpecies.apply),
-        identifyParent = {
-          case ProcessedSpecies(species) => parentLookup.parentOf(species.ncbiId)
-          case UnnamedClade(ncbiId, _)   => parentLookup.parentOf(ncbiId)
-        },
+      rootUnnamedNode = makeTree(
+        species.toNonEmptySet.map(ProcessedSpecies.apply),
+        identifyParent = parentLookup.asMap.lift,
       )
-
-      rootUnnamedNode <- IO.fromEither(maybeRootUnnamedNode.toRight(GenericException("No root node")))
 
       namesForUnnamedNodes <- lookupNamesById(
         ncbiDump,
@@ -51,9 +53,56 @@ object ActualMetazooaTree {
 
   // TODO there's a bug here
   private def makeTree(
-    bottomOfTree: Set[PartiallyProcessedTaxon],
-    identifyParent: PartiallyProcessedTaxon => Option[NcbiId],
-  ): Option[UnnamedClade] = ???
+    bottomOfTree: NonEmptySet[ProcessedSpecies],
+    identifyParent: NcbiId => Option[NcbiId],
+  ): UnnamedClade = {
+    val bottomOfTreeLookup: Map[NcbiId, PartiallyProcessedTaxon] =
+      bottomOfTree
+        .map(t => t.ncbiId -> t)
+        .toMap
+
+    val childrenLookup: mutable.Map[NcbiId, mutable.Set[NcbiId]] = mutable.Map()
+
+    @tailrec
+    def populateChildrenLookupAndReturnRoot(currentTaxaIds: NonEmptySet[NcbiId]): NcbiId =
+      currentTaxaIds.size match {
+        case 1 => currentTaxaIds.head
+        case _ => {
+          val nextTaxaIds: NonEmptySet[NcbiId] = currentTaxaIds.map { (taxonId: NcbiId) =>
+            identifyParent(taxonId) match {
+              case Some(parentId) => {
+                childrenLookup.getOrElseUpdate(parentId, mutable.Set()).addOne(taxonId)
+                parentId
+              }
+              case None => taxonId
+            }
+          }
+
+          populateChildrenLookupAndReturnRoot(nextTaxaIds)
+        }
+      }
+
+    def buildPartiallyProcessedTaxonFor(ncbiId: NcbiId): PartiallyProcessedTaxon =
+      (bottomOfTreeLookup.get(ncbiId), childrenLookup.get(ncbiId)) match {
+        case (Some(processedSpecies: ProcessedSpecies), None) =>
+          processedSpecies
+        case (Some(_processedSpecies @ _), Some(_children @ _)) =>
+          throw new AssertionError("Species with children")
+        case (Some(_: UnnamedClade), None) =>
+          throw new AssertionError("Clade on the bottom of tree")
+        case (None, Some(children)) =>
+          UnnamedClade(ncbiId, children.map(buildPartiallyProcessedTaxonFor).toSet)
+        case (None, None) =>
+          throw new AssertionError("Clade with no children")
+      }
+
+    val rootTaxonId = populateChildrenLookupAndReturnRoot(bottomOfTree.map(_.ncbiId))
+
+    buildPartiallyProcessedTaxonFor(rootTaxonId) match {
+      case _: ProcessedSpecies => throw GenericException("Bottom of tree is a clade") // TODO bring into types
+      case clade: UnnamedClade => clade
+    }
+  }
 
   private def lookupNamesById[A](
     ncbiDump: NcbiDump,
