@@ -7,7 +7,7 @@ import munit.FunSuite
 class GameUtilitiesTest extends FunSuite {
 
   test("allPossibleGuesses for empty") {
-    assertEquals(GameUtilities.allPossibleGuesses(cleanState(answer = human)).size, 269)
+    assertEquals(GameUtilities.allPossibleSpecies(cleanState(answer = human)).size, 269)
   }
 
   test("allPossibleGuesses for sponge") {
@@ -15,7 +15,7 @@ class GameUtilitiesTest extends FunSuite {
       .applyMove(Move.Guess(human))
       .get
 
-    assertEquals(GameUtilities.allPossibleGuesses(state), Set(sponge))
+    assertEquals(GameUtilities.allPossibleSpecies(state), Set(sponge))
   }
 
   test("allPossibleGuesses when hint helps") {
@@ -25,7 +25,7 @@ class GameUtilitiesTest extends FunSuite {
       .applyMove(Move.Hint)
       .get
 
-    assertEquals(GameUtilities.allPossibleGuesses(state), Set(human, chimpanzee, bonobo, gorilla))
+    assertEquals(GameUtilities.allPossibleSpecies(state), Set(human, chimpanzee, bonobo, gorilla))
   }
 
 }

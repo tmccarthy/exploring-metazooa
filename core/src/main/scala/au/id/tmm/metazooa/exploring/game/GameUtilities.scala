@@ -23,9 +23,9 @@ object GameUtilities {
   def closestRevealedClade(state: State): Clade = visibleCladesOrderedByProximityToGuess(state).head
 
   /**
-    * All possible guesses, given what is revealed by the state and assuming that the player knows the full Tree.
+    * All possible species, given what is revealed by the state and assuming that the player knows the full Tree.
     */
-  def allPossibleGuesses(state: State): Set[Species] = {
+  def allPossibleSpecies(state: State): Set[Species] = {
     import state.tree.syntax.*
 
     val cladeContainingAnswer = closestRevealedClade(state)

@@ -61,6 +61,7 @@ lazy val core = project
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-core" % tmmCollectionsVersion,
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-cats" % tmmCollectionsVersion,
     libraryDependencies += "org.typelevel"                   %% "cats-effect"                % catsEffectVersion,
+    libraryDependencies += "org.typelevel"                   %% "spire"                      % "0.18.0",
     libraryDependencies += "org.slf4j"                        % "slf4j-api"                  % slf4jVersion,
   )
   .settings(

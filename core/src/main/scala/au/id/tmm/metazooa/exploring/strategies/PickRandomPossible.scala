@@ -8,7 +8,7 @@ import cats.syntax.functor.*
 class PickRandomPossible[F[_]](implicit r: Random[F], m: MonadThrow[F]) extends Strategy[F] {
   override def proposeMove(state: State): F[Move] =
     for {
-      guess <- Random[F].elementOf(GameUtilities.allPossibleGuesses(state))
+      guess <- Random[F].elementOf(GameUtilities.allPossibleSpecies(state))
     } yield Move.Guess(guess)
 }
 

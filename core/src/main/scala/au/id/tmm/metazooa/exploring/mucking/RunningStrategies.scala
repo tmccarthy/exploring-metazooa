@@ -2,7 +2,7 @@ package au.id.tmm.metazooa.exploring.mucking
 
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.{Rules, State}
-import au.id.tmm.metazooa.exploring.strategies.{PickRandomPossible, Simulator}
+import au.id.tmm.metazooa.exploring.strategies.{PickMostNarrowing, Simulator}
 import au.id.tmm.metazooa.exploring.tree.Tree
 import cats.effect.std.Random
 import cats.effect.{IO, IOApp}
@@ -17,8 +17,8 @@ object RunningStrategies extends IOApp.Simple {
       initialState <- generateRandomInitialState(tree)(random)
       _            <- IO.println(s"Answer is ${initialState.answer}")
       moves <- {
-        implicit val r: Random[IO] = random
-        Simulator.runOne[IO](PickRandomPossible[IO], initialState)
+//        implicit val r: Random[IO] = random
+        Simulator.runOne[IO](PickMostNarrowing[IO], initialState)
       }
       _ <- moves.traverse(IO.println)
     } yield ()
