@@ -12,20 +12,22 @@ import au.id.tmm.metazooa.exploring.tree.Species
 import au.id.tmm.utilities.PartialMean
 import cats.Id
 import cats.effect.{Concurrent, Sync}
-import fs2.Chunk
+import fs2.{Chunk, RaiseThrowable}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.immutable.ArraySeq
 
 class PickMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
 
-  override def proposeMove(state: State): F[Move] = {
+  override def proposeMove(state: State.VisibleToPlayer): F[Move] = {
     val allPossibleSpecies = GameUtilities.allPossibleSpecies(state).to(ArraySeq)
 
     val scenarios: fs2.Stream[F, Scenario] =
       for {
         assumedAnswer <- fs2.Stream.emits[F, Species](allPossibleSpecies)
-        assumedState = state.copy(answer = assumedAnswer)
+        assumedState <- fs2.Stream.fromEither[F](
+          state.assumingAnswerIs(assumedAnswer),
+        )(RaiseThrowable.fromApplicativeError[F](Sync[F]))
         move <- fs2.Stream
           .emits[F, Species](allPossibleSpecies)
           .map(Move.Guess)
@@ -40,7 +42,7 @@ class PickMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
       } yield Scenario(move, assumedState)
 
     val averageNumRemaingSpeciesPerMove: fs2.Stream[F, Map[Move, PartialMean[NumRemainingSpecies]]] = scenarios
-      .through(runAcrossProcessors(chunkSize = 10_000)(processScenarios))
+      .through(runAcrossProcessors(chunkSize = 100)(processScenarios))
 
     val meanNumRemainingSpeciesPerMove: F[Map[Move, PartialMean[NumRemainingSpecies]]] =
       averageNumRemaingSpeciesPerMove.compile
@@ -75,7 +77,7 @@ class PickMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
   ): Either[Move.RejectionReason, PartialMean[NumRemainingSpecies]] =
     scenario.assumedCurrentState
       .applyMove(scenario.move)
-      .map(GameUtilities.allPossibleSpecies)
+      .map(s => GameUtilities.allPossibleSpecies(s.visibleToPlayer))
       .map(remainingSpecies => PartialMean.singleValue(remainingSpecies.size))
 
 }

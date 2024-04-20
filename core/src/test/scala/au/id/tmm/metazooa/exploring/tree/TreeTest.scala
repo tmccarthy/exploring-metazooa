@@ -84,4 +84,16 @@ class TreeTest extends FunSuite {
   }
 
   // TODO laws test for basality
+
+  test("human in hominidae") {
+    assert(hominidae.contains(human))
+  }
+
+  test("human in homo") {
+    assert(homo.contains(human))
+  }
+
+  test("chimp not in homo") {
+    assert(!homo.contains(chimpanzee))
+  }
 }

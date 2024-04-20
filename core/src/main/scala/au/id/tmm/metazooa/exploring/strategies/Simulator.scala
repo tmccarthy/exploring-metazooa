@@ -9,7 +9,7 @@ object Simulator {
 
   def runOne[F[_]](strategy: Strategy[F], initialState: State)(implicit F: MonadThrow[F]): F[List[Move]] = {
     def go(movesSoFar: List[Move], currentState: State): F[List[Move]] =
-      strategy.proposeMove(currentState).flatMap { proposedMove =>
+      strategy.proposeMove(currentState.visibleToPlayer).flatMap { proposedMove =>
         Game.doMove(currentState, proposedMove) match {
           case Left(rejectionReason) =>
             F.raiseError(GenericException(s"Attempted move $proposedMove, but rejected with $rejectionReason"))

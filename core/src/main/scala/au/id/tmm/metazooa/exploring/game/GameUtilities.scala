@@ -25,10 +25,10 @@ object GameUtilities {
   /**
     * All possible species, given what is revealed by the state and assuming that the player knows the full Tree.
     */
-  def allPossibleSpecies(state: State): Set[Species] = {
+  def allPossibleSpecies(state: State.VisibleToPlayer): Set[Species] = {
     import state.tree.syntax.*
 
-    val cladeContainingAnswer = closestRevealedClade(state)
+    val cladeContainingAnswer = state.closestRevealedClade
 
     val speciesUnderPossibleClades = cladeContainingAnswer.children
       .flatMap {

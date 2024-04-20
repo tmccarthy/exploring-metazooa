@@ -7,13 +7,14 @@ import munit.FunSuite
 class GameUtilitiesTest extends FunSuite {
 
   test("allPossibleGuesses for empty") {
-    assertEquals(GameUtilities.allPossibleSpecies(cleanState(answer = human)).size, 269)
+    assertEquals(GameUtilities.allPossibleSpecies(cleanState(answer = human).visibleToPlayer).size, 269)
   }
 
   test("allPossibleGuesses for sponge") {
     val state = cleanState(answer = sponge)
       .applyMove(Move.Guess(human))
       .get
+      .visibleToPlayer
 
     assertEquals(GameUtilities.allPossibleSpecies(state), Set(sponge))
   }
@@ -24,6 +25,7 @@ class GameUtilitiesTest extends FunSuite {
       .get
       .applyMove(Move.Hint)
       .get
+      .visibleToPlayer
 
     assertEquals(GameUtilities.allPossibleSpecies(state), Set(human, chimpanzee, bonobo, gorilla))
   }

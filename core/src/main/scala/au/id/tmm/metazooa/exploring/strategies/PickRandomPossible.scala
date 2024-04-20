@@ -6,7 +6,7 @@ import cats.effect.std.Random
 import cats.syntax.functor.*
 
 class PickRandomPossible[F[_]](implicit r: Random[F], m: MonadThrow[F]) extends Strategy[F] {
-  override def proposeMove(state: State): F[Move] =
+  override def proposeMove(state: State.VisibleToPlayer): F[Move] =
     for {
       guess <- Random[F].elementOf(GameUtilities.allPossibleSpecies(state))
     } yield Move.Guess(guess)

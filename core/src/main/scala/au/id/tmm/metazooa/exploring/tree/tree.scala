@@ -77,6 +77,12 @@ final case class Clade(
     case species: Species => Set(species)
   }
 
+  def contains(species: Species): Boolean =
+    children.exists {
+      case clade: Clade         => clade.contains(species)
+      case testSpecies: Species => testSpecies == species
+    }
+
 }
 
 object Clade {

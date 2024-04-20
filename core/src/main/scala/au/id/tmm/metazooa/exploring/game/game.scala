@@ -1,6 +1,7 @@
 package au.id.tmm.metazooa.exploring.game
 
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
+import au.id.tmm.utilities.errors.ProductException
 
 final case class Rules(
   guessCost: Int,
@@ -13,7 +14,6 @@ object Rules {
   val infinite: Rules = standard.copy(gameOverAt = None)
 }
 
-// TODO could probably find a type-safe way to avoid leaking the answer to strategies
 final case class State(
   rules: Rules,
   tree: Tree,
@@ -29,6 +29,43 @@ final case class State(
 
   def applyMove(move: Move): Either[Move.RejectionReason, State] = Game.doMove(this, move)
 
+  def visibleToPlayer: State.VisibleToPlayer =
+    State.VisibleToPlayer(
+      rules,
+      tree,
+      guesses,
+      hints,
+      closestRevealedClade = GameUtilities.closestRevealedClade(this),
+    )
+}
+
+object State {
+
+  /**
+    * Partial representation of the game state as visible to the player. Does not reveal the answer, but does reveal the
+    * least basal clade shared between any hint and the answer.
+    */
+  final case class VisibleToPlayer(
+    rules: Rules,
+    tree: Tree,
+    guesses: Set[Species],
+    hints: Set[Clade],
+    closestRevealedClade: Clade,
+  ) {
+    def assumingAnswerIs(
+      assumedAnswer: Species,
+    ): Either[VisibleToPlayer.AssumedAnswerNotInClosestRevealedClade, State] =
+      if (closestRevealedClade.contains(assumedAnswer)) {
+        Right(State(rules, tree, assumedAnswer, guesses, hints))
+      } else {
+        Left(State.VisibleToPlayer.AssumedAnswerNotInClosestRevealedClade(assumedAnswer, closestRevealedClade))
+      }
+  }
+
+  object VisibleToPlayer {
+    final case class AssumedAnswerNotInClosestRevealedClade(assumedAnswer: Species, closestRevealedClade: Clade)
+        extends ProductException
+  }
 }
 
 sealed trait Move
