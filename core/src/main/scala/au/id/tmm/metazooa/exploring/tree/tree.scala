@@ -4,14 +4,15 @@ import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeOr, unsafeGet}
 import au.id.tmm.utilities.errors.ProductException
 import cats.syntax.functor.*
 import cats.syntax.traverse.*
-import cats.{Hash, Invariant}
+import cats.{Invariant, Order}
 import io.circe.syntax.KeyOps
-import io.circe.{Codec, Decoder, DecodingFailure, Encoder, Json}
+import io.circe.*
 
 final case class NcbiId(asLong: Long) extends AnyRef
 
 object NcbiId {
-  implicit val eq: Hash[NcbiId] = Invariant[Hash].imap(Hash[Long])(NcbiId.apply)(_.asLong)
+  implicit val order: Order[NcbiId]       = Invariant[Order].imap(Order[Long])(NcbiId.apply)(_.asLong)
+  implicit val ordering: Ordering[NcbiId] = order.toOrdering
 
   implicit val codec: Codec[NcbiId] = Codec.from(
     Decoder[Long].map(NcbiId.apply),
@@ -95,7 +96,7 @@ final case class Species(
 ) extends Taxon
 
 object Species {
-//  val codec: Codec[Species] = Codec.forProduct2("name", "ncbiId")(Species.apply)(c => (c.name, c.ncbiId))
+  implicit val codec: Codec[Species] = Codec.forProduct2("name", "ncbiId")(Species.apply)(c => (c.name, c.ncbiId))
 }
 
 final case class Lineage private (

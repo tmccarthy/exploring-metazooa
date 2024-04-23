@@ -2,6 +2,8 @@ package au.id.tmm.metazooa.exploring.game
 
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
 import au.id.tmm.utilities.errors.ProductException
+import io.circe.syntax.KeyOps
+import io.circe.{Codec, Decoder, DecodingFailure, Encoder, Json}
 
 final case class Rules(
   guessCost: Int,
@@ -12,6 +14,9 @@ final case class Rules(
 object Rules {
   val standard: Rules = Rules(guessCost = 1, hintCost = 3, gameOverAt = Some(20))
   val infinite: Rules = standard.copy(gameOverAt = None)
+
+  implicit val codec: Codec[Rules] =
+    Codec.forProduct3("guessCost", "hintCost", "gameOverAt")(Rules.apply)(r => (r.guessCost, r.hintCost, r.gameOverAt))
 }
 
 final case class State(
@@ -83,6 +88,23 @@ object Move {
     case object NoHintsAvailable extends RejectionReason
     case object AlreadyGuessed   extends RejectionReason
   }
+
+  implicit val encoder: Encoder[Move] = {
+    case Hint           => Json.obj("type" := "hint")
+    case Guess(species) => Json.obj("type" := "guess", "species" := species)
+  }
+
+  implicit val decoder: Decoder[Move] = c =>
+    for {
+      theType      <- c.get[String]("type")
+      speciesGuess <- c.get[Option[Species]]("species")
+      move <- (theType, speciesGuess) match {
+        case ("hint", None)           => Right(Move.Hint)
+        case ("guess", Some(species)) => Right(Move.Guess(species))
+        case badValues                => Left(DecodingFailure(badValues.toString(), c.history))
+      }
+    } yield move
+
 }
 
 object Game {

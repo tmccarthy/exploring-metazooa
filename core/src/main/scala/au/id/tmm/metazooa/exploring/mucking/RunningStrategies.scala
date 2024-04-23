@@ -1,8 +1,10 @@
 package au.id.tmm.metazooa.exploring.mucking
 
+import java.nio.file.Paths
+
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.{Rules, State}
-import au.id.tmm.metazooa.exploring.strategies.{PickMostNarrowing, Simulator}
+import au.id.tmm.metazooa.exploring.strategies.{CachedPerfectStrategy, PickMostNarrowing, Simulator}
 import au.id.tmm.metazooa.exploring.tree.Tree
 import cats.effect.std.Random
 import cats.effect.{IO, IOApp}
@@ -16,10 +18,15 @@ object RunningStrategies extends IOApp.Simple {
       tree         <- ActualMetazooaTree.load
       initialState <- generateRandomInitialState(tree)(random)
       _            <- IO.println(s"Answer is ${initialState.answer}")
-      moves <- {
-//        implicit val r: Random[IO] = random
-        Simulator.runOne[IO](PickMostNarrowing[IO], initialState)
-      }
+      strategy = PickMostNarrowing[IO]
+      strategyCachePath <- IO(
+        Paths.get("cache", "strategy_moves.sql").toAbsolutePath,
+      ) // TODO absolute path should be in fetch
+      moves <- CachedPerfectStrategy
+        .cachingAt(strategyCachePath)(strategy)
+        .use { strategy =>
+          Simulator.runOne[IO](strategy, initialState)
+        }
       _ <- moves.traverse(IO.println)
     } yield ()
 

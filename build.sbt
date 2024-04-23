@@ -60,9 +60,11 @@ lazy val core = project
     libraryDependencies += "au.id.tmm.fetch"                 %% "fetch-cache"                % fetchVersion,
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-core" % tmmCollectionsVersion,
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-cats" % tmmCollectionsVersion,
+    libraryDependencies += "au.id.tmm.digest4s"              %% "digest4s-core"              % "1.0.0",
     libraryDependencies += "org.typelevel"                   %% "cats-effect"                % catsEffectVersion,
     libraryDependencies += "org.typelevel"                   %% "spire"                      % "0.18.0",
     libraryDependencies += "org.slf4j"                        % "slf4j-api"                  % slf4jVersion,
+    libraryDependencies += "org.xerial"                       % "sqlite-jdbc"                % "3.45.3.0",
   )
   .settings(
     testFrameworks += new TestFramework("munit.Framework"),
