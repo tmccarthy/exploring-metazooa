@@ -2,7 +2,7 @@ package au.id.tmm.metazooa.exploring.strategies
 
 import algebra.instances.all.doubleAlgebra
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
-import au.id.tmm.metazooa.exploring.strategies.PickMostNarrowing.{
+import au.id.tmm.metazooa.exploring.strategies.BruteForceMostNarrowing.{
   NumRemainingSpecies,
   Scenario,
   logger,
@@ -17,7 +17,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.immutable.ArraySeq
 
-class PickMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
+class BruteForceMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
 
   override def proposeMove(state: State.VisibleToPlayer): F[Move] = {
     val allPossibleSpecies = GameUtilities.allPossibleSpecies(state).to(ArraySeq)
@@ -42,7 +42,7 @@ class PickMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
       } yield Scenario(move, assumedState)
 
     val averageNumRemaingSpeciesPerMove: fs2.Stream[F, Map[Move, PartialMean[NumRemainingSpecies]]] = scenarios
-      .through(runAcrossProcessors(chunkSize = 100)(processScenarios))
+      .through(runAcrossProcessors(chunkSize = 1000)(processScenarios))
 
     val meanNumRemainingSpeciesPerMove: F[Map[Move, PartialMean[NumRemainingSpecies]]] =
       averageNumRemaingSpeciesPerMove.compile
@@ -82,10 +82,10 @@ class PickMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
 
 }
 
-object PickMostNarrowing {
-  val logger: Logger = LoggerFactory.getLogger(classOf[PickMostNarrowing[Id]])
+object BruteForceMostNarrowing {
+  val logger: Logger = LoggerFactory.getLogger(classOf[BruteForceMostNarrowing[Id]])
 
-  def apply[F[_] : Concurrent : Sync]: PickMostNarrowing[F] = new PickMostNarrowing()
+  def apply[F[_] : Concurrent : Sync]: BruteForceMostNarrowing[F] = new BruteForceMostNarrowing()
 
   private final case class Scenario(move: Move, assumedCurrentState: State)
 
@@ -94,9 +94,11 @@ object PickMostNarrowing {
   // TODO put these somewhere general
   private def runEvalAcrossProcessors[F[_] : Concurrent, A, B](chunkSize: Int)(f: Chunk[A] => F[B]): fs2.Pipe[F, A, B] =
     (stream: fs2.Stream[F, A]) => {
+      val parNum = (Runtime.getRuntime.availableProcessors - 1) max 1
+
       stream
         .chunkN(chunkSize)
-        .parEvalMap[F, B](Runtime.getRuntime.availableProcessors)(f)
+        .parEvalMap[F, B](parNum)(f)
     }
 
   private def runAcrossProcessors[F[_] : Concurrent : Sync, A, B](chunkSize: Int)(f: Chunk[A] => B): fs2.Pipe[F, A, B] =

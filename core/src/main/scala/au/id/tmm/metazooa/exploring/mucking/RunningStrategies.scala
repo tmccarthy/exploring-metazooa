@@ -4,35 +4,42 @@ import java.nio.file.Paths
 
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.{Rules, State}
-import au.id.tmm.metazooa.exploring.strategies.{CachedPerfectStrategy, PickMostNarrowing, Simulator}
+import au.id.tmm.metazooa.exploring.strategies.{BruteForceMostNarrowing, CachedPerfectStrategy, Simulator, Strategy}
 import au.id.tmm.metazooa.exploring.tree.Tree
 import cats.effect.std.Random
-import cats.effect.{IO, IOApp}
+import cats.effect.{IO, IOApp, Resource}
 import cats.implicits.toTraverseOps
 
 object RunningStrategies extends IOApp.Simple {
 
   override def run: IO[Unit] =
     for {
-      random       <- Random.scalaUtilRandom[IO]
-      tree         <- ActualMetazooaTree.load
-      initialState <- generateRandomInitialState(tree)(random)
+      random <- Random.scalaUtilRandom[IO]
+      tree   <- ActualMetazooaTree.load
+      numRuns = 100
+      _ <- makeStrategy.use { strategy =>
+        runForRandomInitialState(strategy, tree)(random).replicateA_(numRuns)
+      }
+    } yield ()
+
+  private val makeStrategy: Resource[IO, Strategy[IO]] =
+    for {
+      underlyingStrategy <- Resource.pure(BruteForceMostNarrowing[IO])
+      strategyCachePath  <- Resource.eval(IO(Paths.get("cache", "strategy_moves.sql").toAbsolutePath))
+      cachedStrategy     <- CachedPerfectStrategy.cachingAt(strategyCachePath)(underlyingStrategy)
+    } yield cachedStrategy
+
+  private def runForRandomInitialState(strategy: Strategy[IO], tree: Tree)(implicit r: Random[IO]): IO[Unit] =
+    for {
+      initialState <- generateRandomInitialState(tree)
       _            <- IO.println(s"Answer is ${initialState.answer}")
-      strategy = PickMostNarrowing[IO]
-      strategyCachePath <- IO(
-        Paths.get("cache", "strategy_moves.sql").toAbsolutePath,
-      ) // TODO absolute path should be in fetch
-      moves <- CachedPerfectStrategy
-        .cachingAt(strategyCachePath)(strategy)
-        .use { strategy =>
-          Simulator.runOne[IO](strategy, initialState)
-        }
-      _ <- moves.traverse(IO.println)
+      moves        <- Simulator.runOne(strategy, initialState)
+      _            <- moves.traverse(IO.println)
     } yield ()
 
   private def generateRandomInitialState(tree: Tree)(implicit r: Random[IO]): IO[State] =
     for {
-      answer <- Random[IO].elementOf(tree.root.childSpeciesTransative)
+      answer <- Random[IO].elementOf(tree.root.childSpeciesTransitive)
     } yield State(
       rules = Rules.standard,
       tree,

@@ -16,7 +16,7 @@ object ActualMetazooaFixtures {
     hints = Set.empty,
   )
 
-  private val speciesByName: Map[String, Species] = actualMetazooaTree.root.childSpeciesTransative
+  private val speciesByName: Map[String, Species] = actualMetazooaTree.root.childSpeciesTransitive
     .map(s => s.name -> s)
     .toMap
 

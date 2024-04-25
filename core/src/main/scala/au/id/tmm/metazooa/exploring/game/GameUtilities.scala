@@ -41,7 +41,7 @@ object GameUtilities {
           if (cladeContainsIncorrectGuess) {
             Set.empty
           } else {
-            clade.childSpeciesTransative
+            clade.childSpeciesTransitive
           }
       }
 

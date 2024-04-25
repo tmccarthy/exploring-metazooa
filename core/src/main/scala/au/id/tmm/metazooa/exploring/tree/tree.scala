@@ -1,12 +1,15 @@
 package au.id.tmm.metazooa.exploring.tree
 
 import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeOr, unsafeGet}
-import au.id.tmm.utilities.errors.ProductException
+import au.id.tmm.utilities.errors.{ExceptionOr, ProductException}
 import cats.syntax.functor.*
 import cats.syntax.traverse.*
 import cats.{Invariant, Order}
 import io.circe.syntax.KeyOps
 import io.circe.*
+
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 final case class NcbiId(asLong: Long) extends AnyRef
 
@@ -73,9 +76,15 @@ final case class Clade(
 ) extends Taxon {
   def asTree: Tree = Tree(this)
 
-  def childSpeciesTransative: Set[Species] = children.flatMap {
-    case clade: Clade     => clade.childSpeciesTransative
-    case species: Species => Set(species)
+  val childSpeciesTransitive: Set[Species] = {
+    val builder = Set.newBuilder[Species]
+
+    children.foreach {
+      case clade: Clade     => builder.addAll(clade.childSpeciesTransitive)
+      case species: Species => builder.addOne(species)
+    }
+
+    builder.result()
   }
 
   def contains(species: Species): Boolean =
@@ -83,6 +92,9 @@ final case class Clade(
       case clade: Clade         => clade.contains(species)
       case testSpecies: Species => testSpecies == species
     }
+
+  // Override hashcode to depend on the NcbiID since otherwise this operation becomes extremely expensive
+  override def hashCode(): Int = ncbiId.asLong.hashCode()
 
 }
 
@@ -112,6 +124,9 @@ final case class Lineage private (
 
 object Lineage {
   val empty: Lineage = new Lineage(List.empty)
+
+  // Skips the Monophyletic test
+  private[tree] def makeUnsafe(cladesRootFirst: List[Clade]) = new Lineage(cladesRootFirst)
 
   def apply(cladesRootFirst: List[Clade]): Either[NotMonophyleticError, Lineage] = {
     val errorOrUnit = cladesRootFirst
@@ -177,12 +192,7 @@ final case class Tree private (
     Either.cond(contains(clade), Tree(clade), Tree.NotInTreeError(clade)) // TODO could be optimised
 
   def lineageOf(taxon: Taxon): NotInTreeOr[Lineage] =
-    listAllParentsRootFirstFor(taxon).map { cladesRootFirst =>
-      Lineage(cladesRootFirst) match {
-        case Right(lineage) => lineage
-        case Left(e)        => throw new AssertionError(e)
-      }
-    }
+    listAllParentsRootFirstFor(taxon).map(Lineage.makeUnsafe)
 
   def mostRecentSharedClade(left: Taxon, right: Taxon): NotInTreeOr[Clade] =
     for {
@@ -231,9 +241,23 @@ final case class Tree private (
   }
 
   private def listAllParentsRootFirstFor(taxon: Taxon): NotInTreeOr[List[Clade]] =
-    parentOf(taxon).map {
-      case Some(parent) => unsafeGet(listAllParentsRootFirstFor(parent)).appended(parent)
-      case None         => List.empty
+    ExceptionOr.catchOnly[Tree.NotInTreeError] {
+      val builder = mutable.ListBuffer[Clade]()
+
+      @tailrec
+      def go(taxon: Taxon): Unit =
+        parentOf(taxon) match {
+          case Right(Some(parent)) => {
+            builder.prepend(parent)
+            go(parent)
+          }
+          case Right(None) => ()
+          case Left(e)     => throw e
+        }
+
+      go(taxon)
+
+      builder.result()
     }
 
   private def listAllCladesRootFirstFor(taxon: Taxon): NotInTreeOr[List[Clade]] =
@@ -248,7 +272,7 @@ final case class Tree private (
     parentOf(taxon).map {
       case None => taxon
       case Some(parent) =>
-        if (parent.childSpeciesTransative.size == 1) {
+        if (parent.childSpeciesTransitive.size == 1) {
           Tree.unsafeGet(leastBasalTaxonContainingOnly(parent))
         } else {
           taxon
