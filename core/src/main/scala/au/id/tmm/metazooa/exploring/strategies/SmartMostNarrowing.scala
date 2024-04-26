@@ -121,7 +121,8 @@ object SmartMostNarrowing {
         val builder = Map.newBuilder[Clade, NumSpecies]
 
         def go(clade: Clade): Unit = {
-          builder.addOne(clade -> NumSpecies.count(clade.childSpeciesTransitive))
+          val sizeOfThisClade = NumSpecies.count(clade.childSpeciesTransitive)
+          builder.addOne(clade -> sizeOfThisClade)
 
           clade.children.foreach {
             case clade: Clade => go(clade)
@@ -142,7 +143,7 @@ object SmartMostNarrowing {
     private final case class WithExclusion(underlying: SizedTree.Pure, excludedSpecies: Set[Species])
         extends SizedTree {
       override def sizeOfClade(clade: Clade): NotInTreeOr[NumSpecies] = {
-        val numExcludedSpeciesInClade = NumSpecies.count(clade.childSpeciesTransitive -- excludedSpecies)
+        val numExcludedSpeciesInClade = NumSpecies.count(excludedSpecies -- clade.childSpeciesTransitive)
 
         underlying.sizeOfClade(clade).map(_ - numExcludedSpeciesInClade)
       }
