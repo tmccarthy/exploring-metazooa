@@ -289,6 +289,7 @@ object Tree {
   type NotInTreeOr[A] = Either[NotInTreeError, A]
   final case class NotInTreeError(taxon: Taxon) extends ProductException
 
+  // TODO replace this with a syntax
   def unsafeGet[A](notInTreeOr: NotInTreeOr[A]): A = notInTreeOr match {
     case Right(a) => a
     case Left(e)  => throw new AssertionError(e)

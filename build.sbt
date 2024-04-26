@@ -28,6 +28,8 @@ ThisBuild / tlCiMimaBinaryIssueCheck := false
 ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / tlFatalWarnings := true
 
+ThisBuild / evictionErrorLevel := sbt.util.Level.Warn // TODO update au.id.tmm.probability and remove this
+
 addCommandAlias("check", ";githubWorkflowCheck;scalafmtSbtCheck;+scalafmtCheckAll;+test")
 addCommandAlias("fix", ";githubWorkflowGenerate;+scalafmtSbt;+scalafmtAll")
 
@@ -54,17 +56,18 @@ lazy val core = project
     scalacOptions += "-language:implicitConversions",
   )
   .settings(
-    libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-errors"           % tmmUtilsVersion,
-    libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-cats"             % tmmUtilsVersion,
-    libraryDependencies += "au.id.tmm.fetch"                 %% "fetch-core"                 % fetchVersion,
-    libraryDependencies += "au.id.tmm.fetch"                 %% "fetch-cache"                % fetchVersion,
-    libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-core" % tmmCollectionsVersion,
-    libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-cats" % tmmCollectionsVersion,
-    libraryDependencies += "au.id.tmm.digest4s"              %% "digest4s-core"              % "1.0.0",
-    libraryDependencies += "org.typelevel"                   %% "cats-effect"                % catsEffectVersion,
-    libraryDependencies += "org.typelevel"                   %% "spire"                      % "0.18.0",
-    libraryDependencies += "org.slf4j"                        % "slf4j-api"                  % slf4jVersion,
-    libraryDependencies += "org.xerial"                       % "sqlite-jdbc"                % "3.45.3.0",
+    libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-errors"                         % tmmUtilsVersion,
+    libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-cats"                           % tmmUtilsVersion,
+    libraryDependencies += "au.id.tmm.fetch"                 %% "fetch-core"                               % fetchVersion,
+    libraryDependencies += "au.id.tmm.fetch"                 %% "fetch-cache"                              % fetchVersion,
+    libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-core"               % tmmCollectionsVersion,
+    libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-cats"               % tmmCollectionsVersion,
+    libraryDependencies += "au.id.tmm.digest4s"              %% "digest4s-core"                            % "1.0.0",
+    libraryDependencies += "au.id.tmm.probability"           %% "probability-distribution-exhaustive-cats" % "0.2.1",
+    libraryDependencies += "org.typelevel"                   %% "cats-effect"                              % catsEffectVersion,
+    libraryDependencies += "org.typelevel"                   %% "spire"                                    % "0.18.0",
+    libraryDependencies += "org.slf4j"                        % "slf4j-api"                                % slf4jVersion,
+    libraryDependencies += "org.xerial"                       % "sqlite-jdbc"                              % "3.45.3.0",
   )
   .settings(
     testFrameworks += new TestFramework("munit.Framework"),

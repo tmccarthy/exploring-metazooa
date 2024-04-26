@@ -1,10 +1,8 @@
 package au.id.tmm.metazooa.exploring.mucking
 
-import java.nio.file.Paths
-
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.{Rules, State}
-import au.id.tmm.metazooa.exploring.strategies.{BruteForceMostNarrowing, CachedPerfectStrategy, Simulator, Strategy}
+import au.id.tmm.metazooa.exploring.strategies.{Simulator, SmartMostNarrowing, Strategy}
 import au.id.tmm.metazooa.exploring.tree.Tree
 import cats.effect.std.Random
 import cats.effect.{IO, IOApp, Resource}
@@ -24,10 +22,10 @@ object RunningStrategies extends IOApp.Simple {
 
   private val makeStrategy: Resource[IO, Strategy[IO]] =
     for {
-      underlyingStrategy <- Resource.pure(BruteForceMostNarrowing[IO])
-      strategyCachePath  <- Resource.eval(IO(Paths.get("cache", "strategy_moves.sql").toAbsolutePath))
-      cachedStrategy     <- CachedPerfectStrategy.cachingAt(strategyCachePath)(underlyingStrategy)
-    } yield cachedStrategy
+      underlyingStrategy <- Resource.eval(SmartMostNarrowing[IO])
+//      strategyCachePath  <- Resource.eval(IO(Paths.get("cache", "strategy_moves.sql").toAbsolutePath))
+//      cachedStrategy     <- CachedPerfectStrategy.cachingAt(strategyCachePath)(underlyingStrategy)
+    } yield underlyingStrategy
 
   private def runForRandomInitialState(strategy: Strategy[IO], tree: Tree)(implicit r: Random[IO]): IO[Unit] =
     for {
