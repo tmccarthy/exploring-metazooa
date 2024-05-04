@@ -1,7 +1,8 @@
 package au.id.tmm.metazooa.exploring.game
 
 import au.id.tmm.collections.NonEmptyDupelessSeq
-import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
+import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.Ops
+import au.id.tmm.metazooa.exploring.tree.{Clade, Species}
 
 object GameUtilities {
 
@@ -11,7 +12,7 @@ object GameUtilities {
   def visibleCladesOrderedByProximityToGuess(state: State): NonEmptyDupelessSeq[Clade] = {
     val visibleClades = NonEmptyDupelessSeq.fromHeadTail(
       state.tree.root,
-      state.guesses.map(guess => Tree.unsafeGet(state.tree.mostRecentSharedClade(guess, state.answer))) ++ state.hints,
+      state.guesses.map(guess => state.tree.mostRecentSharedClade(guess, state.answer).unsafeGet) ++ state.hints,
     )
 
     visibleClades.sorted(state.tree.proximityTo(state.answer))

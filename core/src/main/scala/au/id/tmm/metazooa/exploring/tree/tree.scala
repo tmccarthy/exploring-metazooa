@@ -1,12 +1,13 @@
 package au.id.tmm.metazooa.exploring.tree
 
-import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeOr, unsafeGet}
+import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr
+import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.utilities.errors.{ExceptionOr, ProductException}
 import cats.syntax.functor.*
 import cats.syntax.traverse.*
 import cats.{Invariant, Order}
-import io.circe.syntax.KeyOps
 import io.circe.*
+import io.circe.syntax.KeyOps
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -211,8 +212,8 @@ final case class Tree private (
   def proximityTo(focus: Taxon): Ordering[Taxon] = new Ordering[Taxon] {
     override def compare(left: Taxon, right: Taxon): Int =
       Ordering[Int].compare(
-        unsafeGet(distance(focus, right)),
-        unsafeGet(distance(focus, left)),
+        distance(focus, right).unsafeGet,
+        distance(focus, left).unsafeGet,
       )
   }
 
@@ -227,7 +228,7 @@ final case class Tree private (
     }
 
   val basality: Ordering[Taxon] = new Ordering[Taxon] {
-    override def compare(left: Taxon, right: Taxon): Int = Tree.unsafeGet {
+    override def compare(left: Taxon, right: Taxon): Int = {
       for {
         leftUniqueTaxon  <- leastBasalTaxonContainingOnly(left)
         rightUniqueTaxon <- leastBasalTaxonContainingOnly(right)
@@ -237,7 +238,7 @@ final case class Tree private (
       } yield {
         rightAllClades.size - leftAllClades.size
       }
-    }
+    }.unsafeGet
   }
 
   private def listAllParentsRootFirstFor(taxon: Taxon): NotInTreeOr[List[Clade]] =
@@ -273,7 +274,7 @@ final case class Tree private (
       case None => taxon
       case Some(parent) =>
         if (parent.childSpeciesTransitive.size == 1) {
-          Tree.unsafeGet(leastBasalTaxonContainingOnly(parent))
+          leastBasalTaxonContainingOnly(parent).unsafeGet
         } else {
           taxon
         }
@@ -286,18 +287,22 @@ final case class Tree private (
 }
 
 object Tree {
-  type NotInTreeOr[A] = Either[NotInTreeError, A]
   final case class NotInTreeError(taxon: Taxon) extends ProductException
 
-  // TODO replace this with a syntax
-  def unsafeGet[A](notInTreeOr: NotInTreeOr[A]): A = notInTreeOr match {
-    case Right(a) => a
-    case Left(e)  => throw new AssertionError(e)
+  type NotInTreeOr[A] = Either[NotInTreeError, A]
+
+  object NotInTreeOr {
+    implicit class Ops[A](notInTreeOr: NotInTreeOr[A]) {
+      def unsafeGet: A = notInTreeOr match {
+        case Right(a) => a
+        case Left(e)  => throw e
+      }
+    }
   }
 
   final class TaxonOps private[tree] (tree: Tree, taxon: Taxon) {
-    def parent: Option[Clade] = unsafeGet(tree.parentOf(taxon))
-    def lineage: Lineage      = unsafeGet(tree.lineageOf(taxon))
+    def parent: Option[Clade] = tree.parentOf(taxon).unsafeGet
+    def lineage: Lineage      = tree.lineageOf(taxon).unsafeGet
   }
 
   implicit val encoder: Encoder[Tree] = t => Json.obj("root" := (t.root: Taxon))
@@ -305,4 +310,5 @@ object Tree {
     case root: Clade => Right(Tree(root))
     case _: Species  => Left("Expected clade, found species")
   }
+
 }

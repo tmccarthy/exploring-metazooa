@@ -4,6 +4,7 @@ import au.id.tmm.fetch.cache.{Cache, InMemoryKVStore}
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
 import au.id.tmm.metazooa.exploring.strategies.SmartMostNarrowing.{NumSpecies, ProbabilityOps, SizedTree}
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr
+import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
 import au.id.tmm.probability.distribution.exhaustive.ProbabilityDistribution
 import au.id.tmm.probability.rational.RationalProbability
@@ -40,31 +41,33 @@ class SmartMostNarrowing[F[_] : Monad] private (getSizedTree: Tree => F[SizedTre
 
   private def numRemainingSpeciesAfterGuessing(
     sizeTree: SizedTree,
-    closestRevealedClade: Clade,
+    boundingClade: Clade,
     guess: Species,
   ): ProbabilityDistribution[NumSpecies] = {
     val tree = sizeTree.tree
     import tree.syntax.*
 
-    val denominator = Tree.unsafeGet(sizeTree.sizeOfClade(closestRevealedClade)).toLong
+    val cladeSize = sizeTree.sizeOfClade(boundingClade).unsafeGet.toLong
 
-    val buffer = ArraySeq.newBuilder[(NumSpecies, RationalProbability)]
+    val buffer = ArraySeq.newBuilder[(NumSpecies, RationalProbability)] // TODO make the builder public in probability
+
+    assert(boundingClade.contains(guess))
 
     // Case where the guess is correct
-    buffer.addOne(0 -> RationalProbability.makeUnsafe(1L, denominator))
+    buffer.addOne(0 -> RationalProbability.makeUnsafe(1L, cladeSize))
 
     @tailrec
-    def go(clade: Clade, previousCladeSize: NumSpecies): Unit = {
-      val identifiedByThisNode: NumSpecies =
-        Tree.unsafeGet(sizeTree.sizeOfClade(clade)) - previousCladeSize
+    def go(clade: Clade, countIdentifiedByLessBasalTaxon: NumSpecies): Unit = {
+      val identifiedByThisClade: NumSpecies =
+        sizeTree.sizeOfClade(clade).unsafeGet - countIdentifiedByLessBasalTaxon
 
-      if (identifiedByThisNode > 0) {
-        buffer.addOne(identifiedByThisNode -> RationalProbability.makeUnsafe(identifiedByThisNode.toLong, denominator))
+      if (identifiedByThisClade > 0) {
+        buffer.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
       }
 
-      if (clade != closestRevealedClade) {
+      if (clade != boundingClade) {
         clade.parent match {
-          case Some(parent) => go(parent, Tree.unsafeGet(sizeTree.sizeOfClade(clade)))
+          case Some(parent) => go(parent, sizeTree.sizeOfClade(clade).unsafeGet)
           case None         => ()
         }
       }
@@ -94,7 +97,7 @@ object SmartMostNarrowing {
   private sealed trait SizedTree {
     def tree: Tree
 
-    def size: NumSpecies = Tree.unsafeGet(sizeOfClade(tree.root))
+    def size: NumSpecies = sizeOfClade(tree.root).unsafeGet
 
     def sizeOfClade(clade: Clade): NotInTreeOr[NumSpecies]
 
