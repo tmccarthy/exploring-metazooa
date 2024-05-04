@@ -63,14 +63,22 @@ class SmartMostNarrowing[F[_] : Monad] private (getSizedTree: Tree => F[SizedTre
 
       if (identifiedByThisClade > 0) {
         buffer.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
-      }
 
-      if (clade != boundingClade) {
-        clade.parent match {
-          case Some(parent) => go(parent, sizeTree.sizeOfClade(clade).unsafeGet)
-          case None         => ()
+        if (clade != boundingClade) {
+          clade.parent match {
+            case Some(parent) => go(parent, sizeTree.sizeOfClade(clade).unsafeGet)
+            case None         => ()
+          }
+        }
+      } else {
+        if (clade != boundingClade) {
+          clade.parent match {
+            case Some(parent) => go(parent, countIdentifiedByLessBasalTaxon)
+            case None         => ()
+          }
         }
       }
+
     }
 
     guess.parent.foreach(go(_, 1))
@@ -146,7 +154,9 @@ object SmartMostNarrowing {
     private final case class WithExclusion(underlying: SizedTree.Pure, excludedSpecies: Set[Species])
         extends SizedTree {
       override def sizeOfClade(clade: Clade): NotInTreeOr[NumSpecies] = {
-        val numExcludedSpeciesInClade = NumSpecies.count(excludedSpecies -- clade.childSpeciesTransitive)
+        // TODO optimise this line
+        val numExcludedSpeciesInClade =
+          NumSpecies.count(excludedSpecies) - NumSpecies.count(excludedSpecies -- clade.childSpeciesTransitive)
 
         underlying.sizeOfClade(clade).map(_ - numExcludedSpeciesInClade)
       }
