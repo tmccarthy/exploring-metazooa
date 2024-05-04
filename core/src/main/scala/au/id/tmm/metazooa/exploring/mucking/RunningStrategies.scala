@@ -14,7 +14,7 @@ object RunningStrategies extends IOApp.Simple {
     for {
       random <- Random.scalaUtilRandom[IO]
       tree   <- ActualMetazooaTree.load
-      numRuns = 10000
+      numRuns = 2000
       _ <- makeStrategy.use { strategy =>
         runForRandomInitialState(strategy, tree)(random).replicateA_(numRuns)
       }

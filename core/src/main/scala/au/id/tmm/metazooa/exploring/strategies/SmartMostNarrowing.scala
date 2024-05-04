@@ -51,8 +51,6 @@ class SmartMostNarrowing[F[_] : Monad] private (getSizedTree: Tree => F[SizedTre
 
     val buffer = ArraySeq.newBuilder[(NumSpecies, RationalProbability)] // TODO make the builder public in probability
 
-    assert(boundingClade.contains(guess))
-
     // Case where the guess is correct
     buffer.addOne(0 -> RationalProbability.makeUnsafe(1L, cladeSize))
 
@@ -153,13 +151,22 @@ object SmartMostNarrowing {
 
     private final case class WithExclusion(underlying: SizedTree.Pure, excludedSpecies: Set[Species])
         extends SizedTree {
-      override def sizeOfClade(clade: Clade): NotInTreeOr[NumSpecies] = {
-        // TODO optimise this line
-        val numExcludedSpeciesInClade =
-          NumSpecies.count(excludedSpecies) - NumSpecies.count(excludedSpecies -- clade.childSpeciesTransitive)
-
-        underlying.sizeOfClade(clade).map(_ - numExcludedSpeciesInClade)
+      private val cladesImpactedByExclusions: Set[Clade] = {
+        excludedSpecies.flatMap { species =>
+          underlying.tree.lineageOf(species).unsafeGet.cladesRootFirst.toSet
+        }
       }
+
+      override def sizeOfClade(clade: Clade): NotInTreeOr[NumSpecies] =
+        if (cladesImpactedByExclusions.contains(clade)) {
+          // TODO optimise this line
+          val numExcludedSpeciesInClade =
+            NumSpecies.count(excludedSpecies) - NumSpecies.count(excludedSpecies -- clade.childSpeciesTransitive)
+
+          underlying.sizeOfClade(clade).map(_ - numExcludedSpeciesInClade)
+        } else {
+          underlying.sizeOfClade(clade)
+        }
 
       override def tree: Tree = underlying.tree
     }
