@@ -1,7 +1,6 @@
-package au.id.tmm.metazooa.exploring.mucking
+package au.id.tmm.metazooa.exploring.strategies
 
 import au.id.tmm.metazooa.exploring.game.{Rules, Score, State}
-import au.id.tmm.metazooa.exploring.strategies.{Simulator, Strategy}
 import au.id.tmm.metazooa.exploring.tree.{Species, Tree}
 import au.id.tmm.utilities.Fs2Utils
 import cats.effect.IO
@@ -13,8 +12,10 @@ object StrategyTester {
   final case class Results(
     tree: Tree,
     rules: Rules,
-    scorePerSpecies: Species => Score,
-  )
+    scorePerSpecies: Map[Species, Score],
+  ) {
+    def orderedScores: ArraySeq[(Species, Score)] = scorePerSpecies.to(ArraySeq).sortBy(_._2)
+  }
 
   def testStrategy(
     tree: Tree,
@@ -35,10 +36,5 @@ object StrategyTester {
         .compile
         .to(Map)
     } yield Results(tree, rules, scorePerSpecies)
-
-  def initialStates(tree: Tree, rules: Rules): fs2.Stream[IO, State] =
-    fs2.Stream
-      .emits[IO, Species](tree.root.childSpeciesTransitive.to(ArraySeq))
-      .map(answer => State.initial(rules, tree, answer))
 
 }
