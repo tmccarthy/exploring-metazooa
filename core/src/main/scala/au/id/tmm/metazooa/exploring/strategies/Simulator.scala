@@ -1,13 +1,26 @@
 package au.id.tmm.metazooa.exploring.strategies
 
-import au.id.tmm.metazooa.exploring.game.{Game, Move, State}
+import au.id.tmm.metazooa.exploring.game.{Game, Move, Rules, Score, State}
 import au.id.tmm.utilities.errors.GenericException
 import cats.MonadThrow
 import cats.syntax.flatMap.*
+import cats.syntax.functor.*
 
 object Simulator {
 
-  def runOne[F[_]](strategy: Strategy[F], initialState: State)(implicit F: MonadThrow[F]): F[List[Move]] = {
+  final case class GameResult(
+    rules: Rules,
+    moves: List[Move],
+  ) {
+    val score: Score = Score(
+      moves.map {
+        case Move.Hint     => rules.hintCost
+        case _: Move.Guess => rules.guessCost
+      }.sum,
+    )
+  }
+
+  def runOne[F[_]](strategy: Strategy[F], initialState: State)(implicit F: MonadThrow[F]): F[GameResult] = {
     def go(movesSoFar: List[Move], currentState: State): F[List[Move]] =
       strategy.proposeMove(currentState.visibleToPlayer).flatMap { proposedMove =>
         Game.doMove(currentState, proposedMove) match {
@@ -24,7 +37,7 @@ object Simulator {
         }
       }
 
-    go(movesSoFar = List.empty, initialState)
+    go(movesSoFar = List.empty, initialState).map(GameResult(initialState.rules, _))
   }
 
 }

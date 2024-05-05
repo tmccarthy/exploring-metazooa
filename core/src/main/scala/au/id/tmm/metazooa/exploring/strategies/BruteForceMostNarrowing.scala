@@ -2,14 +2,9 @@ package au.id.tmm.metazooa.exploring.strategies
 
 import algebra.instances.all.doubleAlgebra
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
-import au.id.tmm.metazooa.exploring.strategies.BruteForceMostNarrowing.{
-  NumRemainingSpecies,
-  Scenario,
-  logger,
-  runAcrossProcessors,
-}
+import au.id.tmm.metazooa.exploring.strategies.BruteForceMostNarrowing.{NumRemainingSpecies, Scenario, logger}
 import au.id.tmm.metazooa.exploring.tree.Species
-import au.id.tmm.utilities.PartialMean
+import au.id.tmm.utilities.{Fs2Utils, PartialMean}
 import cats.Id
 import cats.effect.{Concurrent, Sync}
 import fs2.{Chunk, RaiseThrowable}
@@ -42,7 +37,7 @@ class BruteForceMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
       } yield Scenario(move, assumedState)
 
     val averageNumRemaingSpeciesPerMove: fs2.Stream[F, Map[Move, PartialMean[NumRemainingSpecies]]] = scenarios
-      .through(runAcrossProcessors(chunkSize = 1000)(processScenarios))
+      .through(Fs2Utils.runAcrossProcessors(chunkSize = 1000)(processScenarios))
 
     val meanNumRemainingSpeciesPerMove: F[Map[Move, PartialMean[NumRemainingSpecies]]] =
       averageNumRemaingSpeciesPerMove.compile
@@ -90,18 +85,5 @@ object BruteForceMostNarrowing {
   private final case class Scenario(move: Move, assumedCurrentState: State)
 
   type NumRemainingSpecies = Int
-
-  // TODO put these somewhere general
-  private def runEvalAcrossProcessors[F[_] : Concurrent, A, B](chunkSize: Int)(f: Chunk[A] => F[B]): fs2.Pipe[F, A, B] =
-    (stream: fs2.Stream[F, A]) => {
-      val parNum = (Runtime.getRuntime.availableProcessors - 1) max 1
-
-      stream
-        .chunkN(chunkSize)
-        .parEvalMap[F, B](parNum)(f)
-    }
-
-  private def runAcrossProcessors[F[_] : Concurrent : Sync, A, B](chunkSize: Int)(f: Chunk[A] => B): fs2.Pipe[F, A, B] =
-    runEvalAcrossProcessors(chunkSize)(chunk => Sync[F].delay(f(chunk)))
 
 }

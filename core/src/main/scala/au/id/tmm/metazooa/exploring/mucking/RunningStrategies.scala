@@ -32,18 +32,16 @@ object RunningStrategies extends IOApp.Simple {
       initialState <- generateRandomInitialState(tree)
       _            <- IO.println(s"Answer is ${initialState.answer}")
       moves        <- Simulator.runOne(strategy, initialState)
-      _            <- moves.traverse(IO.println)
+      _            <- moves.moves.traverse(IO.println)
     } yield ()
 
   private def generateRandomInitialState(tree: Tree)(implicit r: Random[IO]): IO[State] =
     for {
       answer <- Random[IO].elementOf(tree.root.childSpeciesTransitive)
-    } yield State(
+    } yield State.initial(
       rules = Rules.standard,
       tree,
       answer,
-      guesses = Set.empty,
-      hints = Set.empty,
     )
 
 }

@@ -2,8 +2,16 @@ package au.id.tmm.metazooa.exploring.game
 
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
 import au.id.tmm.utilities.errors.ProductException
+import cats.{Invariant, Order}
 import io.circe.syntax.KeyOps
 import io.circe.{Codec, Decoder, DecodingFailure, Encoder, Json}
+
+final case class Score(asInt: Int)
+
+object Score {
+  implicit val order: Order[Score]       = Invariant[Order].imap(Order[Int])(Score.apply)(_.asInt)
+  implicit val ordering: Ordering[Score] = order.toOrdering
+}
 
 final case class Rules(
   guessCost: Int,
@@ -45,6 +53,12 @@ final case class State(
 }
 
 object State {
+
+  def initial(
+    rules: Rules,
+    tree: Tree,
+    answer: Species,
+  ): State = State(rules, tree, answer, guesses = Set.empty, hints = Set.empty)
 
   /**
     * Partial representation of the game state as visible to the player. Does not reveal the answer, but does reveal the

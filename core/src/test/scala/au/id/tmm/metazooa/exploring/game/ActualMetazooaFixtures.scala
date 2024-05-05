@@ -8,12 +8,10 @@ object ActualMetazooaFixtures {
 
   val actualMetazooaTree: Tree = ActualMetazooaTree.load.unsafeRunSync()(IORuntime.global)
 
-  def cleanState(answer: Species): State = State(
+  def cleanState(answer: Species): State = State.initial(
     Rules.infinite,
     actualMetazooaTree,
     answer,
-    guesses = Set.empty,
-    hints = Set.empty,
   )
 
   private val speciesByName: Map[String, Species] = actualMetazooaTree.root.childSpeciesTransitive
