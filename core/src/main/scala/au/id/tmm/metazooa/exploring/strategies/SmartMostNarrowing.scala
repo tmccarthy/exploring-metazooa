@@ -33,7 +33,9 @@ class SmartMostNarrowing[F[_] : Monad] private (getSizedTree: Tree => F[SizedTre
           guess -> new ProbabilityOps(numRemainingSpeciesAfterGuessing(sizedTree, closestRevealedClade, guess))
             .mean(Rational.apply)
         }
-        .minBy(_._2)
+        .minBy { case (species, averageRemainingSpecies) =>
+          (averageRemainingSpecies, species.ncbiId)
+        }
         ._1
 
       Move.Guess(speciesToGuess)

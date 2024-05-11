@@ -1,6 +1,5 @@
 package au.id.tmm.metazooa.exploring.strategies
 
-import algebra.instances.all.doubleAlgebra
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
 import au.id.tmm.metazooa.exploring.strategies.BruteForceMostNarrowing.{NumRemainingSpecies, Scenario, logger}
 import au.id.tmm.metazooa.exploring.tree.Species
@@ -9,6 +8,7 @@ import cats.Id
 import cats.effect.{Concurrent, Sync}
 import fs2.{Chunk, RaiseThrowable}
 import org.slf4j.{Logger, LoggerFactory}
+import spire.math.Rational
 
 import scala.collection.immutable.ArraySeq
 
@@ -44,7 +44,18 @@ class BruteForceMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
         .foldMonoid(cats.instances.map.catsKernelStdMonoidForMap)
 
     Sync[F].map(meanNumRemainingSpeciesPerMove) { lookupAverageRemainingSpecies =>
-      lookupAverageRemainingSpecies.keySet.minBy(move => lookupAverageRemainingSpecies(move).map(_.toDouble).toMean)
+      lookupAverageRemainingSpecies.keySet.minBy { move =>
+        val meanRemainingSpecies =
+          lookupAverageRemainingSpecies(move).map(Rational.apply)(_ + _).toMean // TODO find the semigroup for Rational
+
+        (
+          meanRemainingSpecies,
+          move match {
+            case Move.Guess(species) => species.ncbiId.asLong
+            case Move.Hint           => Long.MaxValue
+          },
+        )
+      }
     }
   }
 

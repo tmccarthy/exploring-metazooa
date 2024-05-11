@@ -71,7 +71,8 @@ lazy val core = project
   )
   .settings(
     testFrameworks += new TestFramework("munit.Framework"),
-    libraryDependencies += "org.scalameta"       %% "munit"                  % mUnitVersion    % Test,
-    libraryDependencies += "au.id.tmm.tmm-utils" %% "tmm-utils-testing-core" % tmmUtilsVersion % Test,
-    libraryDependencies += "org.typelevel"       %% "munit-cats-effect-3"    % "1.0.5"         % Test,
+    libraryDependencies += "org.scalameta"       %% "munit"                   % mUnitVersion    % Test,
+    libraryDependencies += "au.id.tmm.tmm-utils" %% "tmm-utils-testing-core"  % tmmUtilsVersion % Test,
+    libraryDependencies += "org.typelevel"       %% "munit-cats-effect-3"     % "1.0.5"         % Test,
+    libraryDependencies += "org.typelevel"       %% "scalacheck-effect-munit" % "1.0.4"         % Test,
   )
