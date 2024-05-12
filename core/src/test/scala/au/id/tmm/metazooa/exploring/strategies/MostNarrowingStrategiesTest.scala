@@ -13,7 +13,10 @@ class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectS
   override def scalaCheckTestParameters: Test.Parameters =
     super.scalaCheckTestParameters.withMinSuccessfulTests(3)
 
-  // TODO figure out how to make the ordering stable for equivalent guesses
+  // TODO There is an issue here that I haven't figured out. The SmartMostNarrowing strategy considers Lutrinae (otters)
+  //      and Mustela (weasel and mink) as equivalent first moves, with all having x/y or 38.386617100371744 remaining
+  //      species. But the brute force strategy gives preference to Lutrinae (x/y or 38.386617100371744), and instead
+  //      has Mustela at (x/y or 38.39033457249071).
   test(
     s"${classOf[SmartMostNarrowing[IO]].getSimpleName} is equivalent to ${BruteForceMostNarrowing.getClass.getSimpleName}".fail,
   ) {
