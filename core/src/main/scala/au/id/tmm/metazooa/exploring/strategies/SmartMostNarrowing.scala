@@ -34,7 +34,6 @@ class SmartMostNarrowing[F[_] : Monad] private (
         .allPossibleSpecies(state)
         .to(ArraySeq)
         .map { guess =>
-          // TODO fix the syntax here
           guess -> mean(numRemainingSpeciesAfterGuessing(sizedTree, closestRevealedClade, guess))
         }
 
