@@ -2,7 +2,7 @@ package au.id.tmm.metazooa.exploring.strategies
 
 import au.id.tmm.fetch.cache.{Cache, InMemoryKVStore}
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
-import au.id.tmm.metazooa.exploring.strategies.SmartMostNarrowing.{NumSpecies, ProbabilityOps, SizedTree}
+import au.id.tmm.metazooa.exploring.strategies.SmartMostNarrowing.{NumSpecies, SizedTree, mean}
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
@@ -12,7 +12,9 @@ import au.id.tmm.utilities.errors.syntax.*
 import cats.Monad
 import cats.effect.kernel.Ref
 import cats.syntax.functor.*
+import spire.algebra.IsRational
 import spire.math.Rational
+import spire.std.int.IntAlgebra
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -25,18 +27,17 @@ class SmartMostNarrowing[F[_] : Monad] private (getSizedTree: Tree => F[SizedTre
 
       val sizedTree = cachedSizedTree.excluding(speciesToExclude)
 
-      val speciesToGuess = GameUtilities
+      val meanRemainingSpeciesPerGuess = GameUtilities
         .allPossibleSpecies(state)
         .to(ArraySeq)
         .map { guess =>
           // TODO fix the syntax here
-          guess -> new ProbabilityOps(numRemainingSpeciesAfterGuessing(sizedTree, closestRevealedClade, guess))
-            .mean(Rational.apply)
+          guess -> mean(numRemainingSpeciesAfterGuessing(sizedTree, closestRevealedClade, guess))
         }
-        .minBy { case (species, averageRemainingSpecies) =>
-          (averageRemainingSpecies, species.ncbiId)
-        }
-        ._1
+
+      val speciesToGuess = meanRemainingSpeciesPerGuess.minBy { case (species, averageRemainingSpecies) =>
+        (averageRemainingSpecies, species.ncbiId)
+      }._1
 
       Move.Guess(speciesToGuess)
     }
@@ -175,13 +176,11 @@ object SmartMostNarrowing {
   }
 
   // TODO put this somewhere shared. Could probably be coupled with PartialMean
-  private implicit class ProbabilityOps[A](distribution: ProbabilityDistribution[A]) {
-    def mean(toRational: A => Rational): Rational =
-      distribution.asMap
-        .map { case (a, p) =>
-          toRational(a) * p.asRational
-        }
-        .foldLeft(Rational.zero)(_ + _)
-  }
+  def mean[A : IsRational](distribution: ProbabilityDistribution[A]): Rational =
+    distribution.asMap
+      .map { case (a, p) =>
+        IsRational[A].toRational(a) * p.asRational
+      }
+      .foldLeft(Rational.zero)(_ + _)
 
 }

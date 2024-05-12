@@ -48,13 +48,12 @@ class BruteForceMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
         val meanRemainingSpecies =
           lookupAverageRemainingSpecies(move).map(Rational.apply)(_ + _).toMean // TODO find the semigroup for Rational
 
-        (
-          meanRemainingSpecies,
-          move match {
-            case Move.Guess(species) => species.ncbiId.asLong
-            case Move.Hint           => Long.MaxValue
-          },
-        )
+        val tieBreakingSortKey = move match {
+          case Move.Guess(species) => species.ncbiId.asLong
+          case Move.Hint           => Long.MaxValue
+        }
+
+        (meanRemainingSpecies, tieBreakingSortKey)
       }
     }
   }
