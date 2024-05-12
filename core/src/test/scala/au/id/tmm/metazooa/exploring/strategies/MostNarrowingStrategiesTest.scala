@@ -1,35 +1,44 @@
 package au.id.tmm.metazooa.exploring.strategies
 
-import au.id.tmm.metazooa.exploring.ActualMetazooaTree
+import au.id.tmm.fetch.cache.InMemoryKVStore
 import au.id.tmm.metazooa.exploring.game.{ActualMetazooaFixtures, Rules, State}
+import au.id.tmm.metazooa.exploring.tree.Species
 import cats.Applicative
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import munit.{CatsEffectSuite, ScalaCheckEffectSuite}
+import org.scalacheck.Gen
 import org.scalacheck.effect.PropF.forAllNoShrinkF
-import org.scalacheck.{Gen, Test}
 
 class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectSuite {
 
-  override def scalaCheckTestParameters: Test.Parameters =
-    super.scalaCheckTestParameters.withMinSuccessfulTests(3)
+//  override def scalaCheckTestParameters: Test.Parameters =
+//    super.scalaCheckTestParameters.withMinSuccessfulTests(5)
 
-  // TODO There is an issue here that I haven't figured out. The SmartMostNarrowing strategy considers Lutrinae (otters)
-  //      and Mustela (weasel and mink) as equivalent first moves, with all having x/y or 38.386617100371744 remaining
-  //      species. But the brute force strategy gives preference to Lutrinae (x/y or 38.386617100371744), and instead
-  //      has Mustela at (x/y or 38.39033457249071).
-  test(
-    s"${classOf[SmartMostNarrowing[IO]].getSimpleName} is equivalent to ${BruteForceMostNarrowing.getClass.getSimpleName}".fail,
-  ) {
-    val genAnswers = Gen.oneOf(ActualMetazooaFixtures.human, ActualMetazooaFixtures.bonobo)
+  private val tree = ActualMetazooaFixtures.actualMetazooaTree
 
-    forAllNoShrinkF(genAnswers) { answer =>
+  private val genSpecies: Gen[Species] = Gen.oneOf(tree.root.childSpeciesTransitive)
+
+  private val bruteForceMostNarrowingFixture: Fixture[CachedPerfectStrategy[IO, BruteForceMostNarrowing[IO]]] =
+    ResourceSuiteLocalFixture(
+      classOf[BruteForceMostNarrowing[IO]].getSimpleName,
       for {
-        sut  <- SmartMostNarrowing[IO]
-        tree <- ActualMetazooaTree.load
+        kvStore <- Resource.eval(InMemoryKVStore.SimpleIO[String, String])
+        underlying = BruteForceMostNarrowing[IO]
+      } yield CachedPerfectStrategy(kvStore, underlying),
+    )
+
+  override def munitFixtures: Seq[Fixture[_]] = super.munitFixtures :+ bruteForceMostNarrowingFixture
+
+  test(
+    s"${classOf[SmartMostNarrowing[IO]].getSimpleName} is equivalent to ${BruteForceMostNarrowing.getClass.getSimpleName}",
+  ) {
+    forAllNoShrinkF(genSpecies) { answer =>
+      for {
+        sut <- SmartMostNarrowing[IO](SmartMostNarrowing.HintRule.NoHints)
         state = State.initial(Rules.infinite, tree, answer)
 
         (bruteForceResult, sutResult) <- Applicative[IO].tuple2(
-          Simulator.runOne(BruteForceMostNarrowing[IO], state),
+          Simulator.runOne(bruteForceMostNarrowingFixture(), state),
           Simulator.runOne(sut, state),
         )
       } yield assertEquals(sutResult.moves, bruteForceResult.moves, s"Answer was $answer")

@@ -22,7 +22,7 @@ object RunningStrategies extends IOApp.Simple {
 
   private val makeStrategy: Resource[IO, Strategy[IO]] =
     for {
-      underlyingStrategy <- Resource.eval(SmartMostNarrowing[IO])
+      underlyingStrategy <- Resource.eval(SmartMostNarrowing[IO](SmartMostNarrowing.HintRule.NoHints))
 //      strategyCachePath  <- Resource.eval(IO(Paths.get("cache", "strategy_moves.sql").toAbsolutePath))
 //      cachedStrategy     <- CachedPerfectStrategy.cachingAt(strategyCachePath)(underlyingStrategy)
     } yield underlyingStrategy

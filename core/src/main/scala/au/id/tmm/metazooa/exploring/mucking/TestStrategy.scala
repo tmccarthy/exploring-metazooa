@@ -8,7 +8,8 @@ import cats.syntax.traverse.*
 
 object TestStrategy extends IOApp.Simple {
 
-  private def strategyToTest: Resource[IO, Strategy[IO]] = Resource.eval(SmartMostNarrowing[IO])
+  private def strategyToTest: Resource[IO, Strategy[IO]] =
+    Resource.eval(SmartMostNarrowing[IO](SmartMostNarrowing.HintRule.NoHints))
 
   override def run: IO[Unit] =
     for {

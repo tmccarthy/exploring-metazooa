@@ -80,10 +80,14 @@ class BruteForceMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
   private def numRemainingSpeciesIn(
     scenario: Scenario,
   ): Either[Move.RejectionReason, PartialMean[NumRemainingSpecies]] =
-    scenario.assumedCurrentState
-      .applyMove(scenario.move)
-      .map(s => GameUtilities.allPossibleSpecies(s.visibleToPlayer))
-      .map(remainingSpecies => PartialMean.singleValue(remainingSpecies.size))
+    scenario.move match {
+      case Move.Guess(species) if species == scenario.assumedCurrentState.answer => Right(PartialMean.singleValue(0))
+      case _ =>
+        scenario.assumedCurrentState
+          .applyMove(scenario.move)
+          .map(s => GameUtilities.allPossibleSpecies(s.visibleToPlayer))
+          .map(remainingSpecies => PartialMean.singleValue(remainingSpecies.size))
+    }
 
 }
 

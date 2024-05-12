@@ -16,10 +16,13 @@ import spire.algebra.IsRational
 import spire.math.Rational
 import spire.std.int.IntAlgebra
 
-import scala.annotation.tailrec
+import scala.annotation.{tailrec, unused}
 import scala.collection.immutable.ArraySeq
 
-class SmartMostNarrowing[F[_] : Monad] private (getSizedTree: Tree => F[SizedTree]) extends Strategy[F] {
+class SmartMostNarrowing[F[_] : Monad] private (
+  @unused hints: SmartMostNarrowing.HintRule,
+  getSizedTree: Tree => F[SizedTree],
+) extends Strategy[F] {
   override def proposeMove(state: State.VisibleToPlayer): F[Move] =
     getSizedTree(state.tree).map { cachedSizedTree =>
       val closestRevealedClade = state.closestRevealedClade
@@ -91,11 +94,18 @@ class SmartMostNarrowing[F[_] : Monad] private (getSizedTree: Tree => F[SizedTre
 
 object SmartMostNarrowing {
 
-  def apply[F[_] : Monad : Ref.Make]: F[SmartMostNarrowing[F]] =
+  sealed trait HintRule
+
+  object HintRule {
+    case object HintsAllowed extends HintRule
+    case object NoHints      extends HintRule
+  }
+
+  def apply[F[_] : Monad : Ref.Make](hints: HintRule): F[SmartMostNarrowing[F]] =
     for {
       store <- InMemoryKVStore[F, Tree, SizedTree, SizedTree](Monad[F].pure)
       cache = Cache(store)
-    } yield new SmartMostNarrowing[F](tree => cache.get(tree)(Monad[F].pure(SizedTree(tree))))
+    } yield new SmartMostNarrowing[F](hints, tree => cache.get(tree)(Monad[F].pure(SizedTree(tree))))
 
   private type NumSpecies = Int
 
