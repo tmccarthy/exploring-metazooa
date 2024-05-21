@@ -16,43 +16,54 @@ import spire.algebra.IsRational
 import spire.math.Rational
 import spire.std.int.IntAlgebra
 
-import scala.annotation.{tailrec, unused}
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 
+// TODO allow caller to choose strategy for picking from probability distribution.
+//  How does it look if you pick mean() vs minimising the worst-case etc
 class SmartMostNarrowing[F[_] : Monad] private (
-  @unused hints: SmartMostNarrowing.HintRule,
-  getSizedTree: Tree => F[SizedTree],
+  sizedTreeCache: Cache[F, Tree, SizedTree, SizedTree],
 ) extends Strategy[F] {
   override def proposeMove(state: State.VisibleToPlayer): F[Move] =
-    getSizedTree(state.tree).map { cachedSizedTree =>
-      val closestRevealedClade = state.closestRevealedClade
-      val speciesToExclude     = state.guesses
+    sizedTreeCache
+      .get(state.tree) {
+        Monad[F].pure(SizedTree(state.tree))
+      }
+      .map { cachedSizedTree =>
+        val speciesToExclude = state.guesses
 
-      val sizedTree = cachedSizedTree.excluding(speciesToExclude)
+        val sizedTree = cachedSizedTree.excluding(speciesToExclude)
 
-      val meanRemainingSpeciesPerGuess = GameUtilities
-        .allPossibleSpecies(state)
-        .to(ArraySeq)
-        .map { guess =>
-          guess -> mean(numRemainingSpeciesAfterGuessing(sizedTree, closestRevealedClade, guess))
-        }
+        val (bestGuess, _) = meanNumRemainingSpeciesAfterBestGuess(state, sizedTree)
 
-      val speciesToGuess = meanRemainingSpeciesPerGuess.minBy { case (species, averageRemainingSpecies) =>
-        (averageRemainingSpecies, species.ncbiId)
-      }._1
+        Move.Guess(bestGuess)
+      }
 
-      Move.Guess(speciesToGuess)
+  private def meanNumRemainingSpeciesAfterBestGuess(
+    state: State.VisibleToPlayer,
+    sizedTree: SizedTree,
+  ): (Species, Rational) = {
+    val meanRemainingSpeciesPerGuess = GameUtilities
+      .allPossibleSpecies(state)
+      .to(ArraySeq)
+      .map { guess =>
+        guess -> mean(numRemainingSpeciesAfterGuessing(sizedTree, state.closestRevealedClade, guess))
+      }
+
+    meanRemainingSpeciesPerGuess.minBy { case (species, averageRemainingSpecies) =>
+      (averageRemainingSpecies, species.ncbiId)
     }
+  }
 
   private def numRemainingSpeciesAfterGuessing(
-    sizeTree: SizedTree,
+    sizedTree: SizedTree,
     boundingClade: Clade,
     guess: Species,
   ): ProbabilityDistribution[NumSpecies] = {
-    val tree = sizeTree.tree
+    val tree = sizedTree.tree
     import tree.syntax.*
 
-    val cladeSize = sizeTree.sizeOfClade(boundingClade).unsafeGet.toLong
+    val cladeSize = sizedTree.sizeOfClade(boundingClade).unsafeGet.toLong
 
     val buffer = ArraySeq.newBuilder[(NumSpecies, RationalProbability)] // TODO make the builder public in probability
 
@@ -62,14 +73,14 @@ class SmartMostNarrowing[F[_] : Monad] private (
     @tailrec
     def go(clade: Clade, countIdentifiedByLessBasalTaxon: NumSpecies): Unit = {
       val identifiedByThisClade: NumSpecies =
-        sizeTree.sizeOfClade(clade).unsafeGet - countIdentifiedByLessBasalTaxon
+        sizedTree.sizeOfClade(clade).unsafeGet - countIdentifiedByLessBasalTaxon
 
       if (identifiedByThisClade > 0) {
         buffer.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
 
         if (clade != boundingClade) {
           clade.parent match {
-            case Some(parent) => go(parent, sizeTree.sizeOfClade(clade).unsafeGet)
+            case Some(parent) => go(parent, sizedTree.sizeOfClade(clade).unsafeGet)
             case None         => ()
           }
         }
@@ -93,18 +104,10 @@ class SmartMostNarrowing[F[_] : Monad] private (
 
 object SmartMostNarrowing {
 
-  sealed trait HintRule
-
-  object HintRule {
-    case object HintsAllowed extends HintRule
-    case object NoHints      extends HintRule
-  }
-
-  def apply[F[_] : Monad : Ref.Make](hints: HintRule): F[SmartMostNarrowing[F]] =
+  def apply[F[_] : Monad : Ref.Make]: F[SmartMostNarrowing[F]] =
     for {
-      store <- InMemoryKVStore[F, Tree, SizedTree, SizedTree](Monad[F].pure)
-      cache = Cache(store)
-    } yield new SmartMostNarrowing[F](hints, tree => cache.get(tree)(Monad[F].pure(SizedTree(tree))))
+      sizedTreeCache <- InMemoryKVStore[F, Tree, SizedTree, SizedTree](Monad[F].pure).map(Cache.apply(_))
+    } yield new SmartMostNarrowing[F](sizedTreeCache)
 
   private type NumSpecies = Int
 
@@ -112,6 +115,7 @@ object SmartMostNarrowing {
     def count(species: Set[Species]): NumSpecies = species.size
   }
 
+  // TODO this may be useful in the package
   private sealed trait SizedTree {
     def tree: Tree
 
