@@ -1,6 +1,6 @@
 package au.id.tmm.metazooa.exploring.strategies
 
-import au.id.tmm.fetch.cache.{Cache, InMemoryKVStore}
+import au.id.tmm.fetch.cache.{InMemoryKVStore, Provider}
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
@@ -19,13 +19,11 @@ import scala.collection.immutable.ArraySeq
 // TODO allow caller to choose strategy for picking from probability distribution.
 //  How does it look if you pick mean() vs minimising the worst-case etc
 class SmartMostNarrowing[F[_] : Monad] private (
-  sizedTreeCache: Cache[F, Tree, SizedTree, SizedTree],
+  sizedTreeCache: Provider[F, Tree, SizedTree],
 ) extends Strategy[F] {
   override def proposeMove(state: State.VisibleToPlayer): F[Move] =
     sizedTreeCache
-      .get(state.tree) {
-        Monad[F].pure(SizedTree(state.tree))
-      }
+      .get(state.tree)
       .map { cachedSizedTree =>
         val speciesToExclude = state.guesses
 
@@ -62,10 +60,10 @@ class SmartMostNarrowing[F[_] : Monad] private (
 
     val cladeSize = sizedTree.sizeOfClade(boundingClade).unsafeGet.toLong
 
-    val buffer = ArraySeq.newBuilder[(NumSpecies, RationalProbability)] // TODO make the builder public in probability
+    val builder = ProbabilityDistribution.builder[NumSpecies]
 
     // Case where the guess is correct
-    buffer.addOne(0 -> RationalProbability.makeUnsafe(1L, cladeSize))
+    builder.addOne(0 -> RationalProbability.makeUnsafe(1L, cladeSize))
 
     @tailrec
     def go(clade: Clade, countIdentifiedByLessBasalTaxon: NumSpecies): Unit = {
@@ -73,7 +71,7 @@ class SmartMostNarrowing[F[_] : Monad] private (
         sizedTree.sizeOfClade(clade).unsafeGet - countIdentifiedByLessBasalTaxon
 
       if (identifiedByThisClade > 0) {
-        buffer.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
+        builder.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
 
         if (clade != boundingClade) {
           clade.parent match {
@@ -94,7 +92,7 @@ class SmartMostNarrowing[F[_] : Monad] private (
 
     guess.parent.foreach(go(_, 1))
 
-    ProbabilityDistribution(buffer.result() *).getOrThrow
+    builder.result().getOrThrow
   }
 
 }
@@ -103,7 +101,7 @@ object SmartMostNarrowing {
 
   def apply[F[_] : Monad : Ref.Make]: F[SmartMostNarrowing[F]] =
     for {
-      sizedTreeCache <- InMemoryKVStore[F, Tree, SizedTree, SizedTree](Monad[F].pure).map(Cache.apply(_))
-    } yield new SmartMostNarrowing[F](sizedTreeCache)
+      sizedTreeStore <- InMemoryKVStore[F, Tree, SizedTree, SizedTree](Monad[F].pure)
+    } yield new SmartMostNarrowing[F](sizedTreeStore.toProvider(tree => Monad[F].pure(SizedTree(tree))))
 
 }

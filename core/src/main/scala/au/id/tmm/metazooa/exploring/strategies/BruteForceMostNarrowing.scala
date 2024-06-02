@@ -26,14 +26,6 @@ class BruteForceMostNarrowing[F[_] : Concurrent : Sync] extends Strategy[F] {
         move <- fs2.Stream
           .emits[F, Species](allPossibleSpecies)
           .map(Move.Guess)
-// TODO add the option for a hint. Would need to find a way to weigh hints according to how expensive they are
-//          .append {
-//            if (assumedState.hintsAvailable) {
-//              fs2.Stream.emit(Move.Hint)
-//            } else {
-//              fs2.Stream.empty
-//            }
-//          }
       } yield Scenario(move, assumedState)
 
     val averageNumRemaingSpeciesPerMove: fs2.Stream[F, Map[Move, PartialMean[NumRemainingSpecies]]] = scenarios

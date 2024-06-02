@@ -28,8 +28,6 @@ ThisBuild / tlCiMimaBinaryIssueCheck := false
 ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / tlFatalWarnings := true
 
-ThisBuild / evictionErrorLevel := sbt.util.Level.Warn // TODO update au.id.tmm.probability and remove this
-
 addCommandAlias("check", ";githubWorkflowCheck;scalafmtSbtCheck;+scalafmtCheckAll;+test")
 addCommandAlias("fix", ";githubWorkflowGenerate;+scalafmtSbt;+scalafmtAll")
 
@@ -39,7 +37,7 @@ val tmmCollectionsVersion = "0.2.0"
 val sttpVersion           = "3.5.2"
 val catsEffectVersion     = "3.2.9"
 val slf4jVersion          = "2.0.0-alpha1"
-val fetchVersion          = "0.9.1"
+val fetchVersion          = "0.9.2"
 val mUnitVersion          = "0.7.27"
 
 lazy val root = tlCrossRootProject
@@ -63,7 +61,7 @@ lazy val core = project
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-core"               % tmmCollectionsVersion,
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-cats"               % tmmCollectionsVersion,
     libraryDependencies += "au.id.tmm.digest4s"              %% "digest4s-core"                            % "1.0.0",
-    libraryDependencies += "au.id.tmm.probability"           %% "probability-distribution-exhaustive-cats" % "0.2.1",
+    libraryDependencies += "au.id.tmm.probability"           %% "probability-distribution-exhaustive-cats" % "0.4.0",
     libraryDependencies += "org.typelevel"                   %% "cats-effect"                              % catsEffectVersion,
     libraryDependencies += "org.typelevel"                   %% "spire"                                    % "0.18.0",
     libraryDependencies += "org.slf4j"                        % "slf4j-api"                                % slf4jVersion,

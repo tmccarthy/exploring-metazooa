@@ -54,7 +54,6 @@ private[buildingtrees] object ComputingFullMetazooaTree {
       rootNode <- IO.fromEither(rootUnnamedNode.nameUsing(namesForUnnamedNodes))
     } yield Tree(rootNode)
 
-  // TODO there's a bug here
   private def makeTree(
     bottomOfTree: NonEmptySet[ProcessedSpecies],
     identifyParent: NcbiId => Option[NcbiId],
