@@ -42,7 +42,12 @@ class SmartMostNarrowing[F[_] : Monad] private (
       .allPossibleSpecies(state)
       .to(ArraySeq)
       .map { guess =>
-        guess -> mean(numRemainingSpeciesAfterGuessing(sizedTree, state.closestRevealedClade, guess))
+        guess -> mean(
+          numRemainingSpeciesAfterGuessing(
+            sizedTree.subTreeFrom(state.closestRevealedClade).unsafeGet,
+            guess,
+          ),
+        )
       }
 
     meanRemainingSpeciesPerGuess.minBy { case (species, averageRemainingSpecies) =>
@@ -52,13 +57,12 @@ class SmartMostNarrowing[F[_] : Monad] private (
 
   private def numRemainingSpeciesAfterGuessing(
     sizedTree: SizedTree,
-    boundingClade: Clade,
     guess: Species,
   ): ProbabilityDistribution[NumSpecies] = {
     val tree = sizedTree.tree
     import tree.syntax.*
 
-    val cladeSize = sizedTree.sizeOfClade(boundingClade).unsafeGet.toLong
+    val cladeSize = sizedTree.size.toLong
 
     val builder = ProbabilityDistribution.builder[NumSpecies]
 
@@ -73,18 +77,14 @@ class SmartMostNarrowing[F[_] : Monad] private (
       if (identifiedByThisClade > 0) {
         builder.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
 
-        if (clade != boundingClade) {
-          clade.parent match {
-            case Some(parent) => go(parent, sizedTree.sizeOfClade(clade).unsafeGet)
-            case None         => ()
-          }
+        clade.parent match {
+          case Some(parent) => go(parent, sizedTree.sizeOfClade(clade).unsafeGet)
+          case None         => ()
         }
       } else {
-        if (clade != boundingClade) {
-          clade.parent match {
-            case Some(parent) => go(parent, countIdentifiedByLessBasalTaxon)
-            case None         => ()
-          }
+        clade.parent match {
+          case Some(parent) => go(parent, countIdentifiedByLessBasalTaxon)
+          case None         => ()
         }
       }
 

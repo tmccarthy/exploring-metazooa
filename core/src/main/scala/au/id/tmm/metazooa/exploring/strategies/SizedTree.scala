@@ -1,6 +1,6 @@
 package au.id.tmm.metazooa.exploring.strategies
 
-import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr
+import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeError, NotInTreeOr}
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.Ops
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
 
@@ -11,18 +11,33 @@ private sealed trait SizedTree {
 
   def sizeOfClade(clade: Clade): NotInTreeOr[NumSpecies]
 
+  def subTreeFrom(newRootClade: Clade): NotInTreeOr[SizedTree] =
+    if (tree.root == newRootClade) {
+      Right(this)
+    } else if (!this.tree.contains(newRootClade)) {
+      Left(NotInTreeError(newRootClade))
+    } else {
+      this match {
+        case pureTree: SizedTree.Pure =>
+          Right(SizedTree.Adjusted(pureTree, newRootClade, Set.empty))
+        case SizedTree.Adjusted(underlying, _, excludedSpecies) =>
+          Right(SizedTree.Adjusted(underlying, newRootClade, excludedSpecies))
+      }
+    }
+
   def excluding(species: Species): SizedTree = this.excluding(Set(species))
 
-  def excluding(species: Set[Species]): SizedTree = if (species.isEmpty) {
-    this
-  } else {
-    this match {
-      case pureTree: SizedTree.Pure =>
-        SizedTree.WithExclusion(pureTree, species)
-      case SizedTree.WithExclusion(underlying, excludedSpecies) =>
-        SizedTree.WithExclusion(underlying, excludedSpecies ++ species)
+  def excluding(species: Set[Species]): SizedTree =
+    if (species.isEmpty) {
+      this
+    } else {
+      this match {
+        case pureTree: SizedTree.Pure =>
+          SizedTree.Adjusted(pureTree, pureTree.tree.root, species)
+        case SizedTree.Adjusted(underlying, rootClade, excludedSpecies) =>
+          SizedTree.Adjusted(underlying, rootClade, excludedSpecies ++ species)
+      }
     }
-  }
 }
 
 private object SizedTree {
@@ -53,7 +68,11 @@ private object SizedTree {
 
   }
 
-  private final case class WithExclusion(underlying: SizedTree.Pure, excludedSpecies: Set[Species]) extends SizedTree {
+  private final case class Adjusted(
+    underlying: SizedTree.Pure,
+    rootClade: Clade,
+    excludedSpecies: Set[Species],
+  ) extends SizedTree {
     private val cladesImpactedByExclusions: Set[Clade] = {
       excludedSpecies.flatMap { species =>
         underlying.tree.lineageOf(species).unsafeGet.cladesRootFirst.toSet
@@ -71,6 +90,6 @@ private object SizedTree {
         underlying.sizeOfClade(clade)
       }
 
-    override def tree: Tree = underlying.tree
+    override val tree: Tree = underlying.tree.treeFrom(rootClade).unsafeGet
   }
 }

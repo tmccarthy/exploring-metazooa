@@ -190,7 +190,13 @@ final case class Tree private (
     if (taxon == root) Right(None) else parentLookup.get(taxon).map(Some(_)).toRight(Tree.NotInTreeError(taxon))
 
   def treeFrom(clade: Clade): NotInTreeOr[Tree] =
-    Either.cond(contains(clade), Tree(clade), Tree.NotInTreeError(clade)) // TODO could be optimised
+    if (clade == this.root) {
+      Right(this)
+    } else if (this.contains(clade)) {
+      Right(Tree(clade))
+    } else {
+      Left(Tree.NotInTreeError(clade))
+    }
 
   def lineageOf(taxon: Taxon): NotInTreeOr[Lineage] =
     listAllParentsRootFirstFor(taxon).map(Lineage.makeUnsafe)
