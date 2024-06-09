@@ -3,17 +3,13 @@ package au.id.tmm.metazooa.exploring.strategies
 import au.id.tmm.fetch.cache.{InMemoryKVStore, Provider}
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
-import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
-import au.id.tmm.probability.distribution.exhaustive.ProbabilityDistribution
-import au.id.tmm.probability.rational.RationalProbability
-import au.id.tmm.utilities.errors.syntax.*
+import au.id.tmm.metazooa.exploring.tree.{Species, Tree}
 import cats.Monad
 import cats.effect.kernel.Ref
 import cats.syntax.functor.*
 import spire.math.Rational
 import spire.std.int.IntAlgebra
 
-import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 
 // TODO allow caller to choose strategy for picking from probability distribution.
@@ -43,7 +39,7 @@ class SmartMostNarrowing[F[_] : Monad] private (
       .to(ArraySeq)
       .map { guess =>
         guess -> mean(
-          numRemainingSpeciesAfterGuessing(
+          GuessScoring.numberOfRemainingSpeciesAfterGuessing(
             sizedTree.subTreeFrom(state.closestRevealedClade).unsafeGet,
             guess,
           ),
@@ -53,46 +49,6 @@ class SmartMostNarrowing[F[_] : Monad] private (
     meanRemainingSpeciesPerGuess.minBy { case (species, averageRemainingSpecies) =>
       (averageRemainingSpecies, species.ncbiId)
     }
-  }
-
-  private def numRemainingSpeciesAfterGuessing(
-    sizedTree: SizedTree,
-    guess: Species,
-  ): ProbabilityDistribution[NumSpecies] = {
-    val tree = sizedTree.tree
-    import tree.syntax.*
-
-    val cladeSize = sizedTree.size.toLong
-
-    val builder = ProbabilityDistribution.builder[NumSpecies]
-
-    // Case where the guess is correct
-    builder.addOne(0 -> RationalProbability.makeUnsafe(1L, cladeSize))
-
-    @tailrec
-    def go(clade: Clade, countIdentifiedByLessBasalTaxon: NumSpecies): Unit = {
-      val identifiedByThisClade: NumSpecies =
-        sizedTree.sizeOfClade(clade).unsafeGet - countIdentifiedByLessBasalTaxon
-
-      if (identifiedByThisClade > 0) {
-        builder.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
-
-        clade.parent match {
-          case Some(parent) => go(parent, sizedTree.sizeOfClade(clade).unsafeGet)
-          case None         => ()
-        }
-      } else {
-        clade.parent match {
-          case Some(parent) => go(parent, countIdentifiedByLessBasalTaxon)
-          case None         => ()
-        }
-      }
-
-    }
-
-    guess.parent.foreach(go(_, 1))
-
-    builder.result().getOrThrow
   }
 
 }
