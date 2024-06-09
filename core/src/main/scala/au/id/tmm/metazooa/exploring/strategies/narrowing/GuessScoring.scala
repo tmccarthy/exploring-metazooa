@@ -1,5 +1,6 @@
-package au.id.tmm.metazooa.exploring.strategies
+package au.id.tmm.metazooa.exploring.strategies.narrowing
 
+import au.id.tmm.metazooa.exploring.strategies.NumSpecies
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species}
 import au.id.tmm.probability.distribution.exhaustive.ProbabilityDistribution

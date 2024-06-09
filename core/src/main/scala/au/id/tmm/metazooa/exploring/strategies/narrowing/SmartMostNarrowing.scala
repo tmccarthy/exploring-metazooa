@@ -1,7 +1,8 @@
-package au.id.tmm.metazooa.exploring.strategies
+package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.fetch.cache.{InMemoryKVStore, Provider}
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
+import au.id.tmm.metazooa.exploring.strategies.{Strategy, mean}
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.metazooa.exploring.tree.{Species, Tree}
 import cats.Monad

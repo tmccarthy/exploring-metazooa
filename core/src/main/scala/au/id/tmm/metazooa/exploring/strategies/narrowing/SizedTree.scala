@@ -1,10 +1,11 @@
-package au.id.tmm.metazooa.exploring.strategies
+package au.id.tmm.metazooa.exploring.strategies.narrowing
 
-import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeError, NotInTreeOr}
+import au.id.tmm.metazooa.exploring.strategies.NumSpecies
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.Ops
+import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeError, NotInTreeOr}
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
 
-private sealed trait SizedTree {
+private[strategies] sealed trait SizedTree {
   def tree: Tree
 
   def size: NumSpecies = sizeOfClade(tree.root).unsafeGet
@@ -40,7 +41,7 @@ private sealed trait SizedTree {
     }
 }
 
-private object SizedTree {
+private[strategies] object SizedTree {
   def apply(tree: Tree): SizedTree = Pure(tree)
 
   private final case class Pure(tree: Tree) extends SizedTree {

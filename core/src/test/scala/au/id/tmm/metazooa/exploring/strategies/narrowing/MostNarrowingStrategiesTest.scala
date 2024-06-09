@@ -1,7 +1,8 @@
-package au.id.tmm.metazooa.exploring.strategies
+package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.fetch.cache.InMemoryKVStore
 import au.id.tmm.metazooa.exploring.game.{ActualMetazooaFixtures, Rules, State}
+import au.id.tmm.metazooa.exploring.strategies.{BruteForceMostNarrowing, CachedPerfectStrategy, Simulator}
 import au.id.tmm.metazooa.exploring.tree.Species
 import cats.Applicative
 import cats.effect.{IO, Resource}
@@ -10,9 +11,6 @@ import org.scalacheck.Gen
 import org.scalacheck.effect.PropF.forAllNoShrinkF
 
 class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectSuite {
-
-//  override def scalaCheckTestParameters: Test.Parameters =
-//    super.scalaCheckTestParameters.withMinSuccessfulTests(5)
 
   private val tree = ActualMetazooaFixtures.actualMetazooaTree
 

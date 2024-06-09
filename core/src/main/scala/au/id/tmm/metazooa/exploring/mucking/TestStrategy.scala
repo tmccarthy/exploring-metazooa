@@ -2,7 +2,8 @@ package au.id.tmm.metazooa.exploring.mucking
 
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.Rules
-import au.id.tmm.metazooa.exploring.strategies.{SmartMostNarrowing, Strategy, StrategyTester}
+import au.id.tmm.metazooa.exploring.strategies.narrowing.SmartMostNarrowing
+import au.id.tmm.metazooa.exploring.strategies.{Strategy, StrategyTester}
 import cats.effect.{IO, IOApp, Resource}
 import cats.syntax.traverse.*
 

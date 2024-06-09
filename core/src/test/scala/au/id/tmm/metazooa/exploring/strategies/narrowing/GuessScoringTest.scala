@@ -1,6 +1,7 @@
-package au.id.tmm.metazooa.exploring.strategies
+package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.metazooa.exploring.game.ActualMetazooaFixtures
+import au.id.tmm.metazooa.exploring.strategies.{MeanNumSpecies, SizedTreeFixtures, mean}
 import munit.{FunSuite, Location}
 import spire.math.Rational
 import spire.std.int.IntAlgebra

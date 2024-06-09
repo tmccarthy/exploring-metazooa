@@ -2,7 +2,8 @@ package au.id.tmm.metazooa.exploring.mucking
 
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.{Rules, State}
-import au.id.tmm.metazooa.exploring.strategies.{Simulator, SmartMostNarrowing, Strategy}
+import au.id.tmm.metazooa.exploring.strategies.narrowing.SmartMostNarrowing
+import au.id.tmm.metazooa.exploring.strategies.{Simulator, Strategy}
 import au.id.tmm.metazooa.exploring.tree.Tree
 import cats.effect.std.Random
 import cats.effect.{IO, IOApp, Resource}
