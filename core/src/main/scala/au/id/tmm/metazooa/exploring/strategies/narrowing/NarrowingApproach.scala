@@ -17,13 +17,21 @@ trait NarrowingApproach[R] {
 
 object NarrowingApproach {
 
-  val MeanLeastRemainingSpecies: NarrowingApproach[MeanNumSpecies] = new NarrowingApproach[MeanNumSpecies] {
-    override def map(distribution: ProbabilityDistribution[NumSpecies]): MeanNumSpecies = mean(distribution)
+  def simple[R](
+    mapF: ProbabilityDistribution[NumSpecies] => R,
+    rOrdering: Ordering[R],
+  ): NarrowingApproach[R] = new NarrowingApproach[R] {
+    private val ordering: Ordering[(Species, R)] = Ordering.by[(Species, R), R](_._2)(rOrdering).orElseBy(_._1.ncbiId)
 
-    override def reduce(scores: ArraySeq[(Species, MeanNumSpecies)]): (Species, MeanNumSpecies) =
-      scores.minBy { case (species, averageRemainingSpecies) =>
-        (averageRemainingSpecies, species.ncbiId)
-      }
+    override def map(distribution: ProbabilityDistribution[NumSpecies]): R = mapF(distribution)
+    override def reduce(scores: ArraySeq[(Species, R)]): (Species, R)      = scores.min(ordering)
+
   }
+
+  val MeanLeastRemaining: NarrowingApproach[MeanNumSpecies] = simple(mean(_), Ordering[MeanNumSpecies])
+
+  val MeanMostRemaining: NarrowingApproach[MeanNumSpecies] = simple(mean(_), Ordering[MeanNumSpecies].reverse)
+
+  val BestWorstCase: NarrowingApproach[MeanNumSpecies] = simple(_.outcomes.max, Ordering[MeanNumSpecies])
 
 }

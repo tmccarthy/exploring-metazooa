@@ -8,7 +8,7 @@ import cats.Applicative
 import cats.effect.{IO, Resource}
 import munit.{CatsEffectSuite, ScalaCheckEffectSuite}
 import org.scalacheck.Gen
-import org.scalacheck.effect.PropF.forAllNoShrinkF
+import org.scalacheck.effect.PropF.forAllF
 
 class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectSuite {
 
@@ -30,7 +30,7 @@ class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectS
   test(
     s"${classOf[SmartMostNarrowing[IO]].getSimpleName} is equivalent to ${BruteForceMostNarrowing.getClass.getSimpleName}",
   ) {
-    forAllNoShrinkF(genSpecies) { answer =>
+    forAllF(genSpecies) { answer =>
       for {
         sut <- SmartMostNarrowing[IO]
         state = State.initial(Rules.infinite, tree, answer)
