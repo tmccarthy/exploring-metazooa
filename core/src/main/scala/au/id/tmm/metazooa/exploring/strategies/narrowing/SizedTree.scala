@@ -5,6 +5,7 @@ import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.Ops
 import au.id.tmm.metazooa.exploring.tree.Tree.{NotInTreeError, NotInTreeOr}
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Tree}
 
+// TODO the modelling for this is bad. Should never have to pass it around alongside the game state
 private[strategies] sealed trait SizedTree {
   def tree: Tree
 

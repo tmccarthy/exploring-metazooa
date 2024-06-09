@@ -1,5 +1,6 @@
 package au.id.tmm.metazooa.exploring.strategies.narrowing
 
+import au.id.tmm.metazooa.exploring.game.{GameUtilities, State}
 import au.id.tmm.metazooa.exploring.strategies.NumSpecies
 import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species}
@@ -8,8 +9,33 @@ import au.id.tmm.probability.rational.RationalProbability
 import au.id.tmm.utilities.errors.syntax.*
 
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 
+// TODO this is not the right name for this object
 private[strategies] object GuessScoring {
+
+  def bestGuess[R](
+    approach: NarrowingApproach[R],
+    state: State.VisibleToPlayer,
+    sizedTree: SizedTree,
+  ): (Species, R) = {
+    val scores =
+      GameUtilities
+        .allPossibleSpecies(state)
+        .to(ArraySeq)
+        .map { guess =>
+          val score = approach.map(
+            numberOfRemainingSpeciesAfterGuessing(
+              sizedTree.subTreeFrom(state.closestRevealedClade).unsafeGet,
+              guess,
+            ),
+          )
+
+          guess -> score
+        }
+
+    approach.reduce(scores)
+  }
 
   def numberOfRemainingSpeciesAfterGuessing(
     sizedTree: SizedTree,
