@@ -14,6 +14,8 @@ object ActualMetazooaFixtures {
     answer,
   )
 
+  def cleanStateVisibleToPlayer: State.VisibleToPlayer = cleanState(human).visibleToPlayer
+
   private val speciesByName: Map[String, Species] = actualMetazooaTree.root.childSpeciesTransitive
     .map(s => s.name -> s)
     .toMap

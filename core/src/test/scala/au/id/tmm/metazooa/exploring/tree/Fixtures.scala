@@ -62,8 +62,8 @@ object Fixtures {
       ),
     )
 
-    val tree: Tree = Tree(
-      root = hominidae,
+    val tree: Tree = Tree.withRoot(
+      hominidae,
     )
 
   }

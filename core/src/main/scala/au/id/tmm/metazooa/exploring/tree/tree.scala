@@ -75,8 +75,6 @@ final case class Clade(
   ncbiId: NcbiId,
   children: Set[Taxon],
 ) extends Taxon {
-  def asTree: Tree = Tree(this)
-
   val childSpeciesTransitive: Set[Species] = {
     val builder = Set.newBuilder[Species]
 
@@ -88,11 +86,7 @@ final case class Clade(
     builder.result()
   }
 
-  def contains(species: Species): Boolean =
-    children.exists {
-      case clade: Clade         => clade.contains(species)
-      case testSpecies: Species => testSpecies == species
-    }
+  def contains(species: Species): Boolean = childSpeciesTransitive.contains(species)
 
   // Override hashcode to depend on the NcbiID since otherwise this operation becomes extremely expensive
   override def hashCode(): Int = ncbiId.asLong.hashCode()
@@ -163,40 +157,14 @@ object Lineage {
   }
 }
 
-final case class Tree private (
-  root: Clade,
-) {
-  private val parentLookup: Map[Taxon, Clade] = {
-    def makeParentLookupFor(root: Clade): Map[Taxon, Clade] = {
-      val lookupBuilder = Map.newBuilder[Taxon, Clade]
-      root.children.foreach { child =>
-        lookupBuilder.addOne((child, root))
+sealed trait Tree {
+  def root: Clade
 
-        child match {
-          case childClade: Clade => lookupBuilder.addAll(makeParentLookupFor(childClade))
-          case _: Species        => ()
-        }
-      }
+  def contains(taxon: Taxon): Boolean
 
-      lookupBuilder.result()
-    }
+  def parentOf(taxon: Taxon): NotInTreeOr[Option[Clade]]
 
-    makeParentLookupFor(root)
-  }
-
-  def contains(taxon: Taxon): Boolean = parentLookup.contains(taxon)
-
-  def parentOf(taxon: Taxon): NotInTreeOr[Option[Clade]] =
-    if (taxon == root) Right(None) else parentLookup.get(taxon).map(Some(_)).toRight(Tree.NotInTreeError(taxon))
-
-  def treeFrom(clade: Clade): NotInTreeOr[Tree] =
-    if (clade == this.root) {
-      Right(this)
-    } else if (this.contains(clade)) {
-      Right(Tree(clade))
-    } else {
-      Left(Tree.NotInTreeError(clade))
-    }
+  def treeFrom(clade: Clade): NotInTreeOr[Tree]
 
   def lineageOf(taxon: Taxon): NotInTreeOr[Lineage] =
     listAllParentsRootFirstFor(taxon).map(Lineage.makeUnsafe)
@@ -293,6 +261,13 @@ final case class Tree private (
 }
 
 object Tree {
+
+  /**
+    * Only for creating a brand new tree. If you already have one that contains a parent of the given clade, you
+    * get better performance by making a subtree instead.
+    */
+  def withRoot(root: Clade): Tree = Tree.Total(root)
+
   final case class NotInTreeError(taxon: Taxon) extends ProductException
 
   type NotInTreeOr[A] = Either[NotInTreeError, A]
@@ -313,8 +288,79 @@ object Tree {
 
   implicit val encoder: Encoder[Tree] = t => Json.obj("root" := (t.root: Taxon))
   implicit val decoder: Decoder[Tree] = Decoder[Taxon].at("root").emap {
-    case root: Clade => Right(Tree(root))
+    case root: Clade => Right(Tree.Total(root))
     case _: Species  => Left("Expected clade, found species")
+  }
+
+  private final case class Total(root: Clade) extends Tree {
+    private val parentLookup: Map[Taxon, Clade] = {
+      def makeParentLookupFor(root: Clade): Map[Taxon, Clade] = {
+        val lookupBuilder = Map.newBuilder[Taxon, Clade]
+        root.children.foreach { child =>
+          lookupBuilder.addOne((child, root))
+
+          child match {
+            case childClade: Clade => lookupBuilder.addAll(makeParentLookupFor(childClade))
+            case _: Species        => ()
+          }
+        }
+
+        lookupBuilder.result()
+      }
+
+      makeParentLookupFor(root)
+    }
+
+    def contains(taxon: Taxon): Boolean = parentLookup.contains(taxon)
+
+    def parentOf(taxon: Taxon): NotInTreeOr[Option[Clade]] =
+      if (taxon == root) Right(None) else parentLookup.get(taxon).map(Some(_)).toRight(Tree.NotInTreeError(taxon))
+
+    def treeFrom(clade: Clade): NotInTreeOr[Tree] =
+      if (clade == this.root) {
+        Right(this)
+      } else if (this.contains(clade)) {
+        Right(Tree.SubTree(this, clade))
+      } else {
+        Left(Tree.NotInTreeError(clade))
+      }
+  }
+
+  private final case class SubTree(underlying: Tree.Total, root: Clade) extends Tree {
+    // TODO replace this with something that performs better
+    private val relevantTaxa: Set[Taxon] = {
+      val builder = Set.newBuilder[Taxon]
+
+      def go(cladeToProcess: Clade): Unit = {
+        builder.addOne(cladeToProcess)
+        cladeToProcess.children.foreach {
+          case clade: Clade     => go(clade)
+          case species: Species => builder.addOne(species)
+        }
+      }
+
+      go(root)
+
+      builder.result()
+    }
+
+    override def contains(taxon: Taxon): Boolean = relevantTaxa.contains(taxon)
+
+    override def parentOf(taxon: Taxon): NotInTreeOr[Option[Clade]] =
+      if (!contains(taxon)) {
+        Left(NotInTreeError(taxon))
+      } else if (taxon == root) {
+        Right(None)
+      } else {
+        underlying.parentOf(taxon)
+      }
+
+    override def treeFrom(clade: Clade): NotInTreeOr[Tree] =
+      if (!contains(clade)) {
+        Left(NotInTreeError(clade))
+      } else {
+        Right(SubTree(underlying, clade))
+      }
   }
 
 }

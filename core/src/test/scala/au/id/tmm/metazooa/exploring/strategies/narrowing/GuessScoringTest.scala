@@ -8,7 +8,12 @@ import spire.std.int.IntAlgebra
 
 class GuessScoringTest extends FunSuite {
 
-  private def makeTest(speciesName: String, expectedMeanRemaining: MeanNumSpecies)(implicit loc: Location): Unit =
+  private def expectedRemainingAfterInitialGuess(
+    speciesName: String,
+    expectedMeanRemaining: MeanNumSpecies,
+  )(implicit
+    loc: Location,
+  ): Unit =
     test(s"Mean number of remaining guesses after guessing '$speciesName' is " + expectedMeanRemaining.toFloat) {
       val species = ActualMetazooaFixtures.speciesWithNameUnsafe(speciesName)
 
@@ -18,7 +23,7 @@ class GuessScoringTest extends FunSuite {
       assertEquals(mean(actualRemainingDistribution), expectedMeanRemaining, expectedMeanRemaining.toDouble)
     }
 
-  makeTest("sea sponge", Rational(71824, 269))
-  makeTest("weasel", Rational(10326, 269))
+  expectedRemainingAfterInitialGuess("sea sponge", Rational(71824, 269))
+  expectedRemainingAfterInitialGuess("weasel", Rational(10326, 269))
 
 }

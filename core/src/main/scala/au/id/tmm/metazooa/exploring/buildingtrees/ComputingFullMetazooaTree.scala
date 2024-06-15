@@ -52,7 +52,7 @@ private[buildingtrees] object ComputingFullMetazooaTree {
       )(_.ncbiId)
 
       rootNode <- IO.fromEither(rootUnnamedNode.nameUsing(namesForUnnamedNodes))
-    } yield Tree(rootNode)
+    } yield Tree.withRoot(rootNode)
 
   private def makeTree(
     bottomOfTree: NonEmptySet[ProcessedSpecies],
