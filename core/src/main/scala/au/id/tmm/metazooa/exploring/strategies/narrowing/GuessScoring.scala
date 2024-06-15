@@ -2,7 +2,6 @@ package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
 import au.id.tmm.metazooa.exploring.strategies.{MeanNumSpecies, NumSpecies}
-import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 import au.id.tmm.metazooa.exploring.tree.{Clade, Species}
 import au.id.tmm.probability.distribution.exhaustive.ProbabilityDistribution
 import au.id.tmm.probability.rational.RationalProbability
@@ -20,7 +19,6 @@ private[strategies] object GuessScoring {
   def expectedRemainingSpeciesAfterNPerfectGuesses(
     approach: NarrowingApproach[MeanNumSpecies],
     stateVisibleToPlayer: State.VisibleToPlayer,
-    sizedTree: SizedTree,
     nGuesses: Int,
   ): MeanNumSpecies = {
     val allPossibleSpecies = GameUtilities.allPossibleSpecies(stateVisibleToPlayer)
@@ -42,7 +40,7 @@ private[strategies] object GuessScoring {
           // TODO this needs to be done with the sized tree
           ProbabilityDistribution.always(Rational(GameUtilities.allPossibleSpecies(state.visibleToPlayer).size))
         } else {
-          val (speciesToGuess, _) = bestGuess(approach, state.visibleToPlayer, sizedTree)
+          val (speciesToGuess, _) = bestGuess(approach, state.visibleToPlayer)
 
           state.applyMove(Move.Guess(speciesToGuess)) match {
             case Right(newState)                         => go(newState, nGuesses = nGuesses - 1)
@@ -68,7 +66,6 @@ private[strategies] object GuessScoring {
   def bestGuess[R](
     approach: NarrowingApproach[R],
     state: State.VisibleToPlayer,
-    sizedTree: SizedTree,
   ): (Species, R) = {
     val scores =
       GameUtilities
@@ -77,7 +74,7 @@ private[strategies] object GuessScoring {
         .map { guess =>
           val score = approach.map(
             numberOfRemainingSpeciesAfterGuessing(
-              sizedTree.subTreeFrom(state.closestRevealedClade).unsafeGet,
+              state,
               guess,
             ),
           )
@@ -89,35 +86,41 @@ private[strategies] object GuessScoring {
   }
 
   def numberOfRemainingSpeciesAfterGuessing(
-    sizedTree: SizedTree,
+    state: State.VisibleToPlayer,
     guess: Species,
   ): ProbabilityDistribution[NumSpecies] = {
-    val tree = sizedTree.tree
-    import tree.syntax.*
+    import state.tree.syntax.*
 
-    val cladeSize = sizedTree.size.toLong
+    val boundingClade     = state.closestRevealedClade
+    val boundingCladeSize = sizeOfClade(state, boundingClade).toLong
 
     val builder = ProbabilityDistribution.builder[NumSpecies]
 
     // Case where the guess is correct
-    builder.addOne(0 -> RationalProbability.makeUnsafe(1L, cladeSize))
+    builder.addOne(0 -> RationalProbability.makeUnsafe(1L, boundingCladeSize))
 
     @tailrec
     def go(clade: Clade, countIdentifiedByLessBasalTaxon: NumSpecies): Unit = {
       val identifiedByThisClade: NumSpecies =
-        sizedTree.sizeOfClade(clade).unsafeGet - countIdentifiedByLessBasalTaxon
+        sizeOfClade(state, clade) - countIdentifiedByLessBasalTaxon
 
       if (identifiedByThisClade > 0) {
-        builder.addOne(identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, cladeSize))
+        builder.addOne(
+          identifiedByThisClade -> RationalProbability.makeUnsafe(identifiedByThisClade.toLong, boundingCladeSize),
+        )
 
-        clade.parent match {
-          case Some(parent) => go(parent, sizedTree.sizeOfClade(clade).unsafeGet)
-          case None         => ()
+        if (clade != boundingClade) {
+          clade.parent match {
+            case Some(parent) => go(parent, sizeOfClade(state, clade))
+            case None         => ()
+          }
         }
       } else {
-        clade.parent match {
-          case Some(parent) => go(parent, countIdentifiedByLessBasalTaxon)
-          case None         => ()
+        if (clade != boundingClade) {
+          clade.parent match {
+            case Some(parent) => go(parent, countIdentifiedByLessBasalTaxon)
+            case None         => ()
+          }
         }
       }
 
@@ -127,5 +130,8 @@ private[strategies] object GuessScoring {
 
     builder.result().getOrThrow
   }
+
+  private def sizeOfClade(state: State.VisibleToPlayer, clade: Clade): NumSpecies =
+    (clade.childSpeciesTransitive -- state.guesses).size
 
 }

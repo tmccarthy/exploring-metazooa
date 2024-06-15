@@ -1,7 +1,7 @@
 package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.metazooa.exploring.game.ActualMetazooaFixtures
-import au.id.tmm.metazooa.exploring.strategies.{MeanNumSpecies, SizedTreeFixtures}
+import au.id.tmm.metazooa.exploring.strategies.MeanNumSpecies
 import munit.{FunSuite, Location}
 import spire.math.Rational
 
@@ -19,7 +19,6 @@ class SizingNBestGuessesTest extends FunSuite {
       val actualNumRemainingSpecies = GuessScoring.expectedRemainingSpeciesAfterNPerfectGuesses(
         NarrowingApproach.MeanLeastRemaining,
         ActualMetazooaFixtures.cleanStateVisibleToPlayer,
-        SizedTreeFixtures.actualMetazooaTreeSized,
         nGuesses,
       )
 

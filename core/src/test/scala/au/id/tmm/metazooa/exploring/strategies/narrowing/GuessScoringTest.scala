@@ -1,7 +1,7 @@
 package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.metazooa.exploring.game.ActualMetazooaFixtures
-import au.id.tmm.metazooa.exploring.strategies.{MeanNumSpecies, SizedTreeFixtures, mean}
+import au.id.tmm.metazooa.exploring.strategies.{MeanNumSpecies, mean}
 import munit.{FunSuite, Location}
 import spire.math.Rational
 import spire.std.int.IntAlgebra
@@ -18,7 +18,7 @@ class GuessScoringTest extends FunSuite {
       val species = ActualMetazooaFixtures.speciesWithNameUnsafe(speciesName)
 
       val actualRemainingDistribution =
-        GuessScoring.numberOfRemainingSpeciesAfterGuessing(SizedTreeFixtures.actualMetazooaTreeSized, species)
+        GuessScoring.numberOfRemainingSpeciesAfterGuessing(ActualMetazooaFixtures.cleanStateVisibleToPlayer, species)
 
       assertEquals(mean(actualRemainingDistribution), expectedMeanRemaining, expectedMeanRemaining.toDouble)
     }
