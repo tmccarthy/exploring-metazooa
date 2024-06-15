@@ -1,12 +1,31 @@
 package au.id.tmm.metazooa.exploring.game
 
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
-import au.id.tmm.metazooa.exploring.tree.{Species, Tree}
+import au.id.tmm.metazooa.exploring.tree.{Clade, Species, Taxon, Tree}
+import au.id.tmm.utilities.errors.GenericException
 import cats.effect.unsafe.IORuntime
+import au.id.tmm.metazooa.exploring.tree.Tree.NotInTreeOr.*
 
 object ActualMetazooaFixtures {
 
   val actualMetazooaTree: Tree = ActualMetazooaTree.load.unsafeRunSync()(IORuntime.global)
+
+  private val taxaByName: Map[String, Taxon] = {
+    val builder = Map.newBuilder[String, Taxon]
+
+    def go(taxon: Taxon): Unit =
+      taxon match {
+        case species: Species => builder.addOne(species.name -> species)
+        case clade: Clade => {
+          builder.addOne(clade.name -> clade)
+          clade.children.foreach(go)
+        }
+      }
+
+    go(actualMetazooaTree.root)
+
+    builder.result()
+  }
 
   def cleanState(answer: Species): State = State.initial(
     Rules.infinite,
@@ -16,11 +35,28 @@ object ActualMetazooaFixtures {
 
   def cleanStateVisibleToPlayer: State.VisibleToPlayer = cleanState(human).visibleToPlayer
 
-  private val speciesByName: Map[String, Species] = actualMetazooaTree.root.childSpeciesTransitive
-    .map(s => s.name -> s)
-    .toMap
+  def stateRevealedToClade(clade: Clade): State = {
+    val answer = clade.childSpeciesTransitive.minBy(_.ncbiId)
 
-  def speciesWithNameUnsafe(name: String): Species = speciesByName(name)
+    val initialState = cleanState(answer)
+
+    val hints = initialState.tree.lineageOf(clade).unsafeGet.cladesRootFirst.toSet + clade
+
+    initialState.copy(hints = hints)
+  }
+
+  def cladeWithNameUnsafe(name: String): Clade = taxaByName(name) match {
+    case species: Species => throw GenericException(species.toString)
+    case clade: Clade     => clade
+  }
+
+  def speciesWithNameUnsafe(name: String): Species = taxaByName(name) match {
+    case species: Species => species
+    case clade: Clade     => throw GenericException(clade.toString)
+  }
+
+  val metazoa: Clade    = cladeWithNameUnsafe("Metazoa")
+  val neognathae: Clade = cladeWithNameUnsafe("Neognathae")
 
   val human: Species      = speciesWithNameUnsafe("human")
   val orangutan: Species  = speciesWithNameUnsafe("orangutan")
