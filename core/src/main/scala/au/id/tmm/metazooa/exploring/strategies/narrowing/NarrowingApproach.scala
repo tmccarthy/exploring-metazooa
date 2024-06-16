@@ -8,32 +8,34 @@ import spire.algebra.IsRational
 import scala.collection.immutable.ArraySeq
 
 // TODO this is more encapuslating a "cost function" for a particular way of evaluating an approach?
-trait NarrowingApproach[R] {
+// TODO not convinced this is worth all the overhead
+trait NarrowingApproach {
 
-  def map[A : IsRational](distribution: ProbabilityDistribution[A]): R
+  def map[A : IsRational](distribution: ProbabilityDistribution[A]): MeanNumSpecies
 
-  def reduce(scores: ArraySeq[(Species, R)]): (Species, R)
+  def reduce(scores: ArraySeq[(Species, MeanNumSpecies)]): (Species, MeanNumSpecies)
 
 }
 
 object NarrowingApproach {
 
-  abstract class Simple[R](rOrdering: Ordering[R]) extends NarrowingApproach[R] {
-    private val ordering: Ordering[(Species, R)]                      = Ordering.by[(Species, R), R](_._2)(rOrdering).orElseBy(_._1.ncbiId)
-    override def reduce(scores: ArraySeq[(Species, R)]): (Species, R) = scores.min(ordering)
+  abstract class Simple(rOrdering: Ordering[MeanNumSpecies]) extends NarrowingApproach {
+    private val ordering: Ordering[(Species, MeanNumSpecies)] =
+      Ordering.by[(Species, MeanNumSpecies), MeanNumSpecies](_._2)(rOrdering).orElseBy(_._1.ncbiId)
+    override def reduce(scores: ArraySeq[(Species, MeanNumSpecies)]): (Species, MeanNumSpecies) = scores.min(ordering)
   }
 
-  val MeanLeastRemaining: NarrowingApproach[MeanNumSpecies] = new Simple[MeanNumSpecies](Ordering[MeanNumSpecies]) {
+  val MeanLeastRemaining: NarrowingApproach = new Simple(Ordering[MeanNumSpecies]) {
     override def map[A : IsRational](distribution: ProbabilityDistribution[A]): MeanNumSpecies = mean(distribution)
   }
 
-  val MeanMostRemaining: NarrowingApproach[MeanNumSpecies] =
-    new Simple[MeanNumSpecies](Ordering[MeanNumSpecies].reverse) {
+  val MeanMostRemaining: NarrowingApproach =
+    new Simple(Ordering[MeanNumSpecies].reverse) {
       override def map[A : IsRational](distribution: ProbabilityDistribution[A]): MeanNumSpecies = mean(distribution)
     }
 
-  val BestWorstCase: NarrowingApproach[MeanNumSpecies] = // simple(_.outcomes.max, Ordering[MeanNumSpecies])
-    new Simple[MeanNumSpecies](Ordering[MeanNumSpecies]) {
+  val BestWorstCase: NarrowingApproach =
+    new Simple(Ordering[MeanNumSpecies]) {
       override def map[A : IsRational](distribution: ProbabilityDistribution[A]): MeanNumSpecies =
         IsRational[A].toRational(distribution.outcomes.max(IsRational[A].toOrdering))
     }

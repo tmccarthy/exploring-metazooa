@@ -17,7 +17,7 @@ private[strategies] object GuessScoring {
 
   // TODO this is a real mess, should be cleaned up
   def expectedRemainingSpeciesAfterNPerfectGuesses(
-    approach: NarrowingApproach[MeanNumSpecies],
+    approach: NarrowingApproach,
     stateVisibleToPlayer: State.VisibleToPlayer,
     nGuesses: Int,
   ): MeanNumSpecies = {
@@ -63,10 +63,10 @@ private[strategies] object GuessScoring {
     }
   }
 
-  def bestGuess[R](
-    approach: NarrowingApproach[R],
+  def bestGuess(
+    approach: NarrowingApproach,
     state: State.VisibleToPlayer,
-  ): (Species, R) = {
+  ): (Species, MeanNumSpecies) = {
     val scores =
       GameUtilities
         .allPossibleSpecies(state)

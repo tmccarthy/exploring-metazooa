@@ -2,8 +2,8 @@ package au.id.tmm.metazooa.exploring.mucking
 
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.{Rules, State}
-import au.id.tmm.metazooa.exploring.strategies.narrowing.{NarrowingApproach, SmartMostNarrowing}
-import au.id.tmm.metazooa.exploring.strategies.{Simulator, Strategy}
+import au.id.tmm.metazooa.exploring.strategies.narrowing.SmartMostNarrowing
+import au.id.tmm.metazooa.exploring.strategies.{HintRules, Simulator, Strategy}
 import au.id.tmm.metazooa.exploring.tree.Tree
 import cats.effect.std.Random
 import cats.effect.{IO, IOApp, Resource}
@@ -23,7 +23,7 @@ object RunningStrategies extends IOApp.Simple {
 
   private val makeStrategy: Resource[IO, Strategy[IO]] =
     for {
-      underlyingStrategy <- Resource.eval(SmartMostNarrowing[IO](NarrowingApproach.MeanLeastRemaining))
+      underlyingStrategy <- Resource.eval(SmartMostNarrowing[IO](hintRules = HintRules.HintsAllowed))
 //      strategyCachePath  <- Resource.eval(IO(Paths.get("cache", "strategy_moves.sql").toAbsolutePath))
 //      cachedStrategy     <- CachedPerfectStrategy.cachingAt(strategyCachePath)(underlyingStrategy)
     } yield underlyingStrategy

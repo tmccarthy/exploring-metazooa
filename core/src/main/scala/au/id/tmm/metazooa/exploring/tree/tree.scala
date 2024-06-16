@@ -183,6 +183,12 @@ sealed trait Tree {
         mostRecentSharedClade
       }
 
+  // TODO really any instance of "lineage.contains" should be replaced with this
+  def isAncestor(focus: Taxon, ancestorToTest: Clade): NotInTreeOr[Boolean] =
+    iterateAllParentsFor(focus).map { it =>
+      it.contains(ancestorToTest)
+    }
+
   def proximityTo(focus: Taxon): Ordering[Taxon] = new Ordering[Taxon] {
     override def compare(left: Taxon, right: Taxon): Int =
       Ordering[Int].compare(
@@ -214,6 +220,25 @@ sealed trait Tree {
       }
     }.unsafeGet
   }
+
+  private def iterateAllParentsFor(taxon: Taxon): NotInTreeOr[Iterator[Clade]] =
+    if (!this.contains(taxon)) {
+      Left(Tree.NotInTreeError(taxon))
+    } else {
+      Right {
+        new Iterator[Clade] {
+          private var current: Option[Clade] = parentOf(taxon).unsafeGet
+
+          override def hasNext: Boolean = current.isDefined
+
+          override def next(): Clade = {
+            val toReturn = current.get
+            current = parentOf(toReturn).unsafeGet
+            toReturn
+          }
+        }
+      }
+    }
 
   private def listAllParentsRootFirstFor(taxon: Taxon): NotInTreeOr[List[Clade]] =
     ExceptionOr.catchOnly[Tree.NotInTreeError] {
@@ -282,8 +307,9 @@ object Tree {
   }
 
   final class TaxonOps private[tree] (tree: Tree, taxon: Taxon) {
-    def parent: Option[Clade] = tree.parentOf(taxon).unsafeGet
-    def lineage: Lineage      = tree.lineageOf(taxon).unsafeGet
+    def parent: Option[Clade]             = tree.parentOf(taxon).unsafeGet
+    def lineage: Lineage                  = tree.lineageOf(taxon).unsafeGet
+    def hasAncestor(that: Clade): Boolean = tree.isAncestor(taxon, that).unsafeGet
   }
 
   implicit val encoder: Encoder[Tree] = t => Json.obj("root" := (t.root: Taxon))

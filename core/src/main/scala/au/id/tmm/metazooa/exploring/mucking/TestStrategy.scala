@@ -3,14 +3,14 @@ package au.id.tmm.metazooa.exploring.mucking
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.Rules
 import au.id.tmm.metazooa.exploring.strategies.narrowing.SmartMostNarrowing
-import au.id.tmm.metazooa.exploring.strategies.{Strategy, StrategyTester}
+import au.id.tmm.metazooa.exploring.strategies.{HintRules, Strategy, StrategyTester}
 import cats.effect.{IO, IOApp, Resource}
 import cats.syntax.traverse.*
 
 object TestStrategy extends IOApp.Simple {
 
   private def strategyToTest: Resource[IO, Strategy[IO]] =
-    Resource.eval(SmartMostNarrowing[IO])
+    Resource.eval(SmartMostNarrowing[IO](hintRules = HintRules.HintsAllowed))
 
   override def run: IO[Unit] =
     for {
