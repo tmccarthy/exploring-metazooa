@@ -18,7 +18,10 @@ class GuessScoringTest extends FunSuite {
       val species = ActualMetazooaFixtures.speciesWithNameUnsafe(speciesName)
 
       val actualRemainingDistribution =
-        GuessScoring.numberOfRemainingSpeciesAfterGuessing(ActualMetazooaFixtures.cleanStateVisibleToPlayer, species)
+        ComputingPerfectGuesses.numberOfRemainingSpeciesAfterGuessing(
+          ActualMetazooaFixtures.cleanStateVisibleToPlayer,
+          species,
+        )
 
       assertEquals(mean(actualRemainingDistribution), expectedMeanRemaining, expectedMeanRemaining.toDouble)
     }

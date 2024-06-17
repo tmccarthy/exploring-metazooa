@@ -11,9 +11,9 @@ import scala.collection.immutable.ArraySeq
 // TODO not convinced this is worth all the overhead
 trait NarrowingApproach {
 
-  def map[A : IsRational](distribution: ProbabilityDistribution[A]): MeanNumSpecies
+  private[strategies] def map[A : IsRational](distribution: ProbabilityDistribution[A]): MeanNumSpecies
 
-  def reduce(scores: ArraySeq[(Species, MeanNumSpecies)]): (Species, MeanNumSpecies)
+  private[strategies] def reduce(scores: ArraySeq[(Species, MeanNumSpecies)]): (Species, MeanNumSpecies)
 
 }
 

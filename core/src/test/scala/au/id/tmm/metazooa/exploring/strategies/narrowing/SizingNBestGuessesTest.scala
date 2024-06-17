@@ -19,7 +19,7 @@ class SizingNBestGuessesTest extends FunSuite {
       s"Starting at ${initialState.closestRevealedClade.name}, mean number of remaining species after guessing" +
         s" $nGuesses perfect guesses is " + expectedMeanRemaining.toFloat,
     ) {
-      val actualNumRemainingSpecies = GuessScoring.expectedRemainingSpeciesAfterNPerfectGuesses(
+      val actualNumRemainingSpecies = ComputingPerfectGuesses.expectedRemainingSpeciesAfterNPerfectGuesses(
         NarrowingApproach.MeanLeastRemaining,
         initialState,
         nGuesses,
