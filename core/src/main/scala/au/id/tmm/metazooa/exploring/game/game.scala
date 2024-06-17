@@ -49,6 +49,7 @@ final case class State(
       guesses,
       hints,
       closestRevealedClade = GameUtilities.closestRevealedClade(this),
+      this.hintsAvailable,
     )
 }
 
@@ -70,6 +71,7 @@ object State {
     guesses: Set[Species],
     hints: Set[Clade],
     closestRevealedClade: Clade,
+    hintsAvailable: Boolean,
   ) {
     def assumingAnswerIs(
       assumedAnswer: Species,

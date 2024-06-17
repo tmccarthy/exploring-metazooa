@@ -35,9 +35,10 @@ object ActualMetazooaFixtures {
 
   def cleanStateVisibleToPlayer: State.VisibleToPlayer = cleanState(human).visibleToPlayer
 
-  def stateRevealedToClade(clade: Clade): State = {
-    val answer = clade.childSpeciesTransitive.minBy(_.ncbiId)
+  def stateRevealedToClade(clade: Clade): State =
+    stateRevealedToClade(clade, answer = clade.childSpeciesTransitive.minBy(_.ncbiId))
 
+  def stateRevealedToClade(clade: Clade, answer: Species): State = {
     val initialState = cleanState(answer)
 
     val hints = initialState.tree.lineageOf(clade).unsafeGet.cladesRootFirst.toSet + clade

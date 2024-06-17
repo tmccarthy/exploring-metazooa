@@ -14,14 +14,18 @@ class SmartMostNarrowing[F[_] : Applicative] private (
     hintRules match {
       case HintRules.NoHints => bestMove(state)
       case HintRules.HintsAllowed => {
-        val expectedRemainingAfterHint = HintScoring.expectedRemainingSpeciesAfterHint(narrowingApproach, state)
-        val expectedRemainingAfterEquivalentGuesses =
-          GuessScoring.expectedRemainingSpeciesAfterNPerfectGuesses(narrowingApproach, state, state.rules.hintCost)
+        HintScoring.expectedRemainingSpeciesAfterHint(narrowingApproach, state) match {
+          case Right(expectedRemainingAfterHint) => {
+            val expectedRemainingAfterEquivalentGuesses =
+              GuessScoring.expectedRemainingSpeciesAfterNPerfectGuesses(narrowingApproach, state, state.rules.hintCost)
 
-        if (expectedRemainingAfterHint <= expectedRemainingAfterEquivalentGuesses) {
-          Move.Hint
-        } else {
-          bestMove(state)
+            if (expectedRemainingAfterHint <= expectedRemainingAfterEquivalentGuesses) {
+              Move.Hint
+            } else {
+              bestMove(state)
+            }
+          }
+          case Left(_) => bestMove(state)
         }
       }
     }

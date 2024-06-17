@@ -23,44 +23,41 @@ private[strategies] object GuessScoring {
   ): MeanNumSpecies = {
     val allPossibleSpecies = GameUtilities.allPossibleSpecies(stateVisibleToPlayer)
 
-    if (allPossibleSpecies.size == 1 || allPossibleSpecies.isEmpty) {
-      Rational(allPossibleSpecies.size)
-    } else {
-      val allPossibleAnswers: ProbabilityDistribution[Species] =
-        ProbabilityDistribution.allElementsEvenly(allPossibleSpecies) match {
-          case Some(distribution) => distribution
-          case None               => return Rational.zero
-        }
-
-      @tailrec
-      def go(state: State, nGuesses: Int): ProbabilityDistribution[MeanNumSpecies] =
-        if (state.isComplete) {
-          ProbabilityDistribution.always(Rational.zero)
-        } else if (nGuesses == 0) {
-          // TODO this needs to be done with the sized tree
-          ProbabilityDistribution.always(Rational(GameUtilities.allPossibleSpecies(state.visibleToPlayer).size))
-        } else {
-          val (speciesToGuess, _) = bestGuess(approach, state.visibleToPlayer)
-
-          state.applyMove(Move.Guess(speciesToGuess)) match {
-            case Right(newState)                         => go(newState, nGuesses = nGuesses - 1)
-            case Left(Move.RejectionReason.GameComplete) => ProbabilityDistribution.always(Rational.zero)
-            case Left(otherRejectionReason)              => throw new AssertionError(otherRejectionReason.toString)
-          }
-        }
-
-      val distributionOfRemaining: ProbabilityDistribution[MeanNumSpecies] = allPossibleAnswers.flatMap { answer =>
-        go(
-          state = stateVisibleToPlayer.assumingAnswerIs(answer) match {
-            case Right(state)                                                          => state
-            case Left(e: State.VisibleToPlayer.AssumedAnswerNotInClosestRevealedClade) => throw new AssertionError(e)
-          },
-          nGuesses,
-        )
+    val allPossibleAnswers: ProbabilityDistribution[Species] =
+      ProbabilityDistribution.allElementsEvenly(allPossibleSpecies) match {
+        case Some(distribution) => distribution
+        case None               => return Rational.zero
       }
 
-      approach.map(distributionOfRemaining)
+    @tailrec
+    def go(state: State, nGuesses: Int): ProbabilityDistribution[MeanNumSpecies] =
+      if (state.isComplete) {
+        ProbabilityDistribution.always(Rational.zero)
+      } else if (nGuesses == 0) {
+        // TODO this needs to be done with the sized tree
+        ProbabilityDistribution.always(Rational(GameUtilities.allPossibleSpecies(state.visibleToPlayer).size))
+      } else {
+        val (speciesToGuess, _) = bestGuess(approach, state.visibleToPlayer)
+
+        state.applyMove(Move.Guess(speciesToGuess)) match {
+          case Right(newState)                         => go(newState, nGuesses = nGuesses - 1)
+          case Left(Move.RejectionReason.GameComplete) => ProbabilityDistribution.always(Rational.zero)
+          case Left(otherRejectionReason)              => throw new AssertionError(otherRejectionReason.toString)
+        }
+      }
+
+    val distributionOfRemaining: ProbabilityDistribution[MeanNumSpecies] = allPossibleAnswers.flatMap { answer =>
+      go(
+        state = stateVisibleToPlayer.assumingAnswerIs(answer) match {
+          case Right(state)                                                          => state
+          case Left(e: State.VisibleToPlayer.AssumedAnswerNotInClosestRevealedClade) => throw new AssertionError(e)
+        },
+        nGuesses,
+      )
     }
+
+    approach.map(distributionOfRemaining)
+
   }
 
   def bestGuess(

@@ -26,6 +26,7 @@ object GameUtilities {
   /**
     * All possible species, given what is revealed by the state and assuming that the player knows the full Tree.
     */
+  // TODO this isn't incorporating the knowledge you can glean from whether or not a hint is available
   def allPossibleSpecies(state: State.VisibleToPlayer): Set[Species] = {
     import state.tree.syntax.*
 

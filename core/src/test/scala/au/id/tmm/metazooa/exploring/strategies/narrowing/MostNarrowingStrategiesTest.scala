@@ -32,7 +32,7 @@ class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectS
   ) {
     forAllF(genSpecies) { answer =>
       for {
-        sut <- SmartMostNarrowing[IO]
+        sut <- SmartMostNarrowing[IO]()
         state = State.initial(Rules.infinite, tree, answer)
 
         (bruteForceResult, sutResult) <- Applicative[IO].tuple2(
