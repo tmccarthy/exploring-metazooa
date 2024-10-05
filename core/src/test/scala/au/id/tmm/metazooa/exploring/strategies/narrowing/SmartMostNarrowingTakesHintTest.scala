@@ -1,7 +1,7 @@
 package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.metazooa.exploring.game.{ActualMetazooaFixtures, Move}
-import au.id.tmm.metazooa.exploring.game.ActualMetazooaFixtures.{neognathae, speciesWithNameUnsafe}
+import au.id.tmm.metazooa.exploring.game.ActualMetazooaFixtures.{percomorphaceae, speciesWithNameUnsafe}
 import au.id.tmm.metazooa.exploring.game.Move.Hint
 import au.id.tmm.metazooa.exploring.strategies.HintRules
 import cats.effect.IO
@@ -9,11 +9,11 @@ import munit.CatsEffectSuite
 
 class SmartMostNarrowingTakesHintTest extends CatsEffectSuite {
 
-  test("take a hint at birds") {
+  test("take a hint at Percomorphaceae") {
     for {
       sut <- SmartMostNarrowing[IO](hintRules = HintRules.HintsAllowed)
 
-      state = ActualMetazooaFixtures.stateRevealedToClade(neognathae, answer = speciesWithNameUnsafe("raven"))
+      state = ActualMetazooaFixtures.stateRevealedToClade(percomorphaceae, answer = speciesWithNameUnsafe("bass"))
     } yield assertIO(sut.proposeMove(state.visibleToPlayer), Hint)
   }
 

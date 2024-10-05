@@ -1,0 +1,1647 @@
+[
+  {
+    "name_en": "freshwater polyp",
+    "common": "freshwater polyp",
+    "scientific": "Hydra vulgaris"
+  },
+  {
+    "name_en": "anemone",
+    "common": "anemone",
+    "scientific": "Actinia tenebrosa"
+  },
+  {
+    "name_en": "jellyfish",
+    "common": "jellyfish",
+    "scientific": "Aurelia aurita"
+  },
+  {
+    "name_en": "tapeworm",
+    "common": "tapeworm",
+    "scientific": "Taenia saginata"
+  },
+  {
+    "name_en": "nematode",
+    "common": "nematode",
+    "scientific": "Caenorhabditis elegans"
+  },
+  {
+    "name_en": "heartworm",
+    "common": "heartworm",
+    "scientific": "Dirofilaria immitis"
+  },
+  {
+    "name_en": "earthworm",
+    "common": "earthworm",
+    "scientific": "Lumbricus terrestris"
+  },
+  {
+    "name_en": "leech",
+    "common": "leech",
+    "scientific": "Hirudo medicinalis"
+  },
+  {
+    "name_en": "snail",
+    "common": "snail",
+    "scientific": "Helix pomatia"
+  },
+  {
+    "name_en": "mussel",
+    "common": "mussel",
+    "scientific": "Mytilus edulis"
+  },
+  {
+    "name_en": "sea clam",
+    "common": "sea clam",
+    "scientific": "Spisula solidissima"
+  },
+  {
+    "name_en": "cuttlefish",
+    "common": "cuttlefish",
+    "scientific": "Sepia officinalis"
+  },
+  {
+    "name_en": "tiger prawn",
+    "common": "tiger prawn",
+    "scientific": "Penaeus monodon"
+  },
+  {
+    "name_en": "lobster",
+    "common": "lobster",
+    "scientific": "Homarus gammarus"
+  },
+  {
+    "name_en": "horseshoe crab",
+    "common": "horseshoe crab",
+    "scientific": "Limulus polyphemus"
+  },
+  {
+    "name_en": "brown recluse",
+    "common": "brown recluse",
+    "scientific": "Loxosceles reclusa"
+  },
+  {
+    "name_en": "black widow",
+    "common": "black widow",
+    "scientific": "Latrodectus tredecimguttatus"
+  },
+  {
+    "name_en": "cockroach",
+    "common": "cockroach",
+    "scientific": "Periplaneta americana"
+  },
+  {
+    "name_en": "grasshopper",
+    "common": "grasshopper",
+    "scientific": "Schistocerca americana"
+  },
+  {
+    "name_en": "locust",
+    "common": "locust",
+    "scientific": "Schistocerca gregaria"
+  },
+  {
+    "name_en": "stick bug",
+    "common": "stick bug",
+    "scientific": "Carausius morosus"
+  },
+  {
+    "name_en": "firefly",
+    "common": "firefly",
+    "scientific": "Nipponoluciola cruciata"
+  },
+  {
+    "name_en": "silkworm",
+    "common": "silkworm",
+    "scientific": "Bombyx mori"
+  },
+  {
+    "name_en": "mosquito",
+    "common": "mosquito",
+    "scientific": "Aedes aegypti"
+  },
+  {
+    "name_en": "fruit fly",
+    "common": "fruit fly",
+    "scientific": "Drosophila melanogaster"
+  },
+  {
+    "name_en": "house fly",
+    "common": "house fly",
+    "scientific": "Musca domestica"
+  },
+  {
+    "name_en": "hornet",
+    "common": "hornet",
+    "scientific": "Vespa crabro"
+  },
+  {
+    "name_en": "honey bee",
+    "common": "honey bee",
+    "scientific": "Apis mellifera"
+  },
+  {
+    "name_en": "praying mantis",
+    "common": "praying mantis",
+    "scientific": "Mantis religiosa"
+  },
+  {
+    "name_en": "starfish",
+    "common": "starfish",
+    "scientific": "Asterias rubens"
+  },
+  {
+    "name_en": "sea urchin",
+    "common": "sea urchin",
+    "scientific": "Strongylocentrotus droebachiensis"
+  },
+  {
+    "name_en": "tiger shark",
+    "common": "tiger shark",
+    "scientific": "Galeocerdo cuvier"
+  },
+  {
+    "name_en": "coelacanth",
+    "common": "coelacanth",
+    "scientific": "Latimeria chalumnae"
+  },
+  {
+    "name_en": "herring",
+    "common": "herring",
+    "scientific": "Clupea harengus"
+  },
+  {
+    "name_en": "goldfish",
+    "common": "goldfish",
+    "scientific": "Carassius auratus"
+  },
+  {
+    "name_en": "carp",
+    "common": "carp",
+    "scientific": "Cyprinus carpio"
+  },
+  {
+    "name_en": "catfish",
+    "common": "catfish",
+    "scientific": "Ictalurus punctatus"
+  },
+  {
+    "name_en": "electric eel",
+    "common": "electric eel",
+    "scientific": "Electrophorus electricus"
+  },
+  {
+    "name_en": "pike",
+    "common": "pike",
+    "scientific": "Esox lucius"
+  },
+  {
+    "name_en": "trout",
+    "common": "trout",
+    "scientific": "Oncorhynchus mykiss"
+  },
+  {
+    "name_en": "salmon",
+    "common": "salmon",
+    "scientific": "Salmo salar"
+  },
+  {
+    "name_en": "cod",
+    "common": "cod",
+    "scientific": "Gadus morhua"
+  },
+  {
+    "name_en": "anglerfish",
+    "common": "anglerfish",
+    "scientific": "Lophius piscatorius"
+  },
+  {
+    "name_en": "guppy",
+    "common": "guppy",
+    "scientific": "Poecilia reticulata"
+  },
+  {
+    "name_en": "tilapia",
+    "common": "tilapia",
+    "scientific": "Oreochromis tanganicae"
+  },
+  {
+    "name_en": "perch",
+    "common": "perch",
+    "scientific": "Perca flavescens"
+  },
+  {
+    "name_en": "tuna",
+    "common": "tuna",
+    "scientific": "Thunnus albacares"
+  },
+  {
+    "name_en": "swordfish",
+    "common": "swordfish",
+    "scientific": "Xiphias gladius"
+  },
+  {
+    "name_en": "axolotl",
+    "common": "axolotl",
+    "scientific": "Ambystoma mexicanum"
+  },
+  {
+    "name_en": "toad",
+    "common": "toad",
+    "scientific": "Bufo bufo"
+  },
+  {
+    "name_en": "bullfrog",
+    "common": "bullfrog",
+    "scientific": "Aquarana catesbeiana"
+  },
+  {
+    "name_en": "snapping turtle",
+    "common": "snapping turtle",
+    "scientific": "Chelydra serpentina"
+  },
+  {
+    "name_en": "alligator",
+    "common": "alligator",
+    "scientific": "Alligator mississippiensis"
+  },
+  {
+    "name_en": "crocodile",
+    "common": "crocodile",
+    "scientific": "Crocodylus porosus"
+  },
+  {
+    "name_en": "iguana",
+    "common": "iguana",
+    "scientific": "Iguana iguana"
+  },
+  {
+    "name_en": "gila monster",
+    "common": "gila monster",
+    "scientific": "Heloderma suspectum"
+  },
+  {
+    "name_en": "boa constrictor",
+    "common": "boa constrictor",
+    "scientific": "Boa constrictor"
+  },
+  {
+    "name_en": "black mamba",
+    "common": "black mamba",
+    "scientific": "Dendroaspis polylepis"
+  },
+  {
+    "name_en": "king cobra",
+    "common": "king cobra",
+    "scientific": "Ophiophagus hannah"
+  },
+  {
+    "name_en": "sea snake",
+    "common": "sea snake",
+    "scientific": "Hydrophis platurus"
+  },
+  {
+    "name_en": "viper",
+    "common": "viper",
+    "scientific": "Cerastes cerastes"
+  },
+  {
+    "name_en": "rattlesnake",
+    "common": "rattlesnake",
+    "scientific": "Crotalus atrox"
+  },
+  {
+    "name_en": "cassowary",
+    "common": "cassowary",
+    "scientific": "Casuarius casuarius"
+  },
+  {
+    "name_en": "emu",
+    "common": "emu",
+    "scientific": "Dromaius novaehollandiae"
+  },
+  {
+    "name_en": "ostrich",
+    "common": "ostrich",
+    "scientific": "Struthio camelus"
+  },
+  {
+    "name_en": "duck",
+    "common": "duck",
+    "scientific": "Anas platyrhynchos"
+  },
+  {
+    "name_en": "goose",
+    "common": "goose",
+    "scientific": "Branta canadensis"
+  },
+  {
+    "name_en": "swan",
+    "common": "swan",
+    "scientific": "Cygnus olor"
+  },
+  {
+    "name_en": "swift",
+    "common": "swift",
+    "scientific": "Apus apus"
+  },
+  {
+    "name_en": "condor",
+    "common": "condor",
+    "scientific": "Vultur gryphus"
+  },
+  {
+    "name_en": "falcon",
+    "common": "falcon",
+    "scientific": "Falco peregrinus"
+  },
+  {
+    "name_en": "chicken",
+    "common": "chicken",
+    "scientific": "Gallus gallus"
+  },
+  {
+    "name_en": "pheasant",
+    "common": "pheasant",
+    "scientific": "Lophura bulweri"
+  },
+  {
+    "name_en": "peacock",
+    "common": "peacock",
+    "scientific": "Pavo cristatus"
+  },
+  {
+    "name_en": "turkey",
+    "common": "turkey",
+    "scientific": "Meleagris gallopavo"
+  },
+  {
+    "name_en": "blackbird",
+    "common": "blackbird",
+    "scientific": "Turdus merula"
+  },
+  {
+    "name_en": "emperor penguin",
+    "common": "emperor penguin",
+    "scientific": "Aptenodytes forsteri"
+  },
+  {
+    "name_en": "platypus",
+    "common": "platypus",
+    "scientific": "Ornithorhynchus anatinus"
+  },
+  {
+    "name_en": "echidna",
+    "common": "echidna",
+    "scientific": "Tachyglossus aculeatus"
+  },
+  {
+    "name_en": "opossum",
+    "common": "opossum",
+    "scientific": "Didelphis marsupialis"
+  },
+  {
+    "name_en": "tasmanian devil",
+    "common": "tasmanian devil",
+    "scientific": "Sarcophilus harrisii"
+  },
+  {
+    "name_en": "kangaroo",
+    "common": "kangaroo",
+    "scientific": "Osphranter rufus"
+  },
+  {
+    "name_en": "possum",
+    "common": "possum",
+    "scientific": "Pseudocheirus peregrinus"
+  },
+  {
+    "name_en": "hedgehog",
+    "common": "hedgehog",
+    "scientific": "Erinaceus europaeus"
+  },
+  {
+    "name_en": "mole",
+    "common": "mole",
+    "scientific": "Talpa europaea"
+  },
+  {
+    "name_en": "vampire bat",
+    "common": "vampire bat",
+    "scientific": "Desmodus rotundus"
+  },
+  {
+    "name_en": "lemur",
+    "common": "lemur",
+    "scientific": "Lemur catta"
+  },
+  {
+    "name_en": "macaque",
+    "common": "macaque",
+    "scientific": "Macaca fuscata"
+  },
+  {
+    "name_en": "mandrill",
+    "common": "mandrill",
+    "scientific": "Mandrillus sphinx"
+  },
+  {
+    "name_en": "gorilla",
+    "common": "gorilla",
+    "scientific": "Gorilla gorilla"
+  },
+  {
+    "name_en": "bonobo",
+    "common": "bonobo",
+    "scientific": "Pan paniscus"
+  },
+  {
+    "name_en": "chimpanzee",
+    "common": "chimpanzee",
+    "scientific": "Pan troglodytes"
+  },
+  {
+    "name_en": "orangutan",
+    "common": "orangutan",
+    "scientific": "Pongo abelii"
+  },
+  {
+    "name_en": "human",
+    "common": "human",
+    "scientific": "Homo sapiens"
+  },
+  {
+    "name_en": "wolf",
+    "common": "wolf",
+    "scientific": "Canis lupus"
+  },
+  {
+    "name_en": "coyote",
+    "common": "coyote",
+    "scientific": "Canis latrans"
+  },
+  {
+    "name_en": "dog",
+    "common": "dog",
+    "scientific": "Canis lupus familiaris"
+  },
+  {
+    "name_en": "red fox",
+    "common": "red fox",
+    "scientific": "Vulpes vulpes"
+  },
+  {
+    "name_en": "black bear",
+    "common": "black bear",
+    "scientific": "Ursus americanus"
+  },
+  {
+    "name_en": "brown bear",
+    "common": "brown bear",
+    "scientific": "Ursus arctos"
+  },
+  {
+    "name_en": "giant panda",
+    "common": "giant panda",
+    "scientific": "Ailuropoda melanoleuca"
+  },
+  {
+    "name_en": "red panda",
+    "common": "red panda",
+    "scientific": "Ailurus fulgens"
+  },
+  {
+    "name_en": "raccoon",
+    "common": "raccoon",
+    "scientific": "Procyon lotor"
+  },
+  {
+    "name_en": "mink",
+    "common": "mink",
+    "scientific": "Mustela lutreola"
+  },
+  {
+    "name_en": "ferret",
+    "common": "ferret",
+    "scientific": "Mustela putorius furo"
+  },
+  {
+    "name_en": "hyena",
+    "common": "hyena",
+    "scientific": "Crocuta crocuta"
+  },
+  {
+    "name_en": "cat",
+    "common": "cat",
+    "scientific": "Felis catus"
+  },
+  {
+    "name_en": "lion",
+    "common": "lion",
+    "scientific": "Panthera leo"
+  },
+  {
+    "name_en": "jaguar",
+    "common": "jaguar",
+    "scientific": "Panthera onca"
+  },
+  {
+    "name_en": "leopard",
+    "common": "leopard",
+    "scientific": "Panthera pardus"
+  },
+  {
+    "name_en": "tiger",
+    "common": "tiger",
+    "scientific": "Panthera tigris"
+  },
+  {
+    "name_en": "puma",
+    "common": "puma",
+    "scientific": "Puma concolor"
+  },
+  {
+    "name_en": "mongoose",
+    "common": "mongoose",
+    "scientific": "Herpestes ichneumon"
+  },
+  {
+    "name_en": "sea lion",
+    "common": "sea lion",
+    "scientific": "Zalophus californianus"
+  },
+  {
+    "name_en": "walrus",
+    "common": "walrus",
+    "scientific": "Odobenus rosmarus"
+  },
+  {
+    "name_en": "seal",
+    "common": "seal",
+    "scientific": "Halichoerus grypus"
+  },
+  {
+    "name_en": "orca",
+    "common": "orca",
+    "scientific": "Orcinus orca"
+  },
+  {
+    "name_en": "dolphin",
+    "common": "dolphin",
+    "scientific": "Tursiops truncatus"
+  },
+  {
+    "name_en": "porpoise",
+    "common": "porpoise",
+    "scientific": "Phocoena phocoena"
+  },
+  {
+    "name_en": "beluga whale",
+    "common": "beluga whale",
+    "scientific": "Delphinapterus leucas"
+  },
+  {
+    "name_en": "sperm whale",
+    "common": "sperm whale",
+    "scientific": "Physeter catodon"
+  },
+  {
+    "name_en": "blue whale",
+    "common": "blue whale",
+    "scientific": "Balaenoptera musculus"
+  },
+  {
+    "name_en": "humpback whale",
+    "common": "humpback whale",
+    "scientific": "Megaptera novaeangliae"
+  },
+  {
+    "name_en": "manatee",
+    "common": "manatee",
+    "scientific": "Trichechus manatus"
+  },
+  {
+    "name_en": "elephant",
+    "common": "elephant",
+    "scientific": "Loxodonta africana"
+  },
+  {
+    "name_en": "donkey",
+    "common": "donkey",
+    "scientific": "Equus asinus"
+  },
+  {
+    "name_en": "horse",
+    "common": "horse",
+    "scientific": "Equus caballus"
+  },
+  {
+    "name_en": "tapir",
+    "common": "tapir",
+    "scientific": "Tapirus indicus"
+  },
+  {
+    "name_en": "rhinoceros",
+    "common": "rhinoceros",
+    "scientific": "Ceratotherium simum"
+  },
+  {
+    "name_en": "hyrax",
+    "common": "hyrax",
+    "scientific": "Procavia capensis"
+  },
+  {
+    "name_en": "aardvark",
+    "common": "aardvark",
+    "scientific": "Orycteropus afer"
+  },
+  {
+    "name_en": "pig",
+    "common": "pig",
+    "scientific": "Sus scrofa"
+  },
+  {
+    "name_en": "hippopotamus",
+    "common": "hippopotamus",
+    "scientific": "Hippopotamus amphibius"
+  },
+  {
+    "name_en": "camel",
+    "common": "camel",
+    "scientific": "Camelus dromedarius"
+  },
+  {
+    "name_en": "llama",
+    "common": "llama",
+    "scientific": "Lama glama"
+  },
+  {
+    "name_en": "moose",
+    "common": "moose",
+    "scientific": "Alces alces"
+  },
+  {
+    "name_en": "caribou",
+    "common": "caribou",
+    "scientific": "Rangifer tarandus"
+  },
+  {
+    "name_en": "deer",
+    "common": "deer",
+    "scientific": "Odocoileus virginianus"
+  },
+  {
+    "name_en": "giraffe",
+    "common": "giraffe",
+    "scientific": "Giraffa camelopardalis"
+  },
+  {
+    "name_en": "bison",
+    "common": "bison",
+    "scientific": "Bison bison"
+  },
+  {
+    "name_en": "cattle",
+    "common": "cattle",
+    "scientific": "Bos taurus"
+  },
+  {
+    "name_en": "goat",
+    "common": "goat",
+    "scientific": "Capra hircus"
+  },
+  {
+    "name_en": "wildebeest",
+    "common": "wildebeest",
+    "scientific": "Connochaetes taurinus"
+  },
+  {
+    "name_en": "sheep",
+    "common": "sheep",
+    "scientific": "Ovis aries"
+  },
+  {
+    "name_en": "pangolin",
+    "common": "pangolin",
+    "scientific": "Manis javanica"
+  },
+  {
+    "name_en": "rabbit",
+    "common": "rabbit",
+    "scientific": "Oryctolagus cuniculus"
+  },
+  {
+    "name_en": "groundhog",
+    "common": "groundhog",
+    "scientific": "Marmota monax"
+  },
+  {
+    "name_en": "hamster",
+    "common": "hamster",
+    "scientific": "Mesocricetus auratus"
+  },
+  {
+    "name_en": "gerbil",
+    "common": "gerbil",
+    "scientific": "Meriones unguiculatus"
+  },
+  {
+    "name_en": "mouse",
+    "common": "mouse",
+    "scientific": "Mus musculus"
+  },
+  {
+    "name_en": "rat",
+    "common": "rat",
+    "scientific": "Rattus norvegicus"
+  },
+  {
+    "name_en": "porcupine",
+    "common": "porcupine",
+    "scientific": "Hystrix africaeaustralis"
+  },
+  {
+    "name_en": "guinea pig",
+    "common": "guinea pig",
+    "scientific": "Cavia porcellus"
+  },
+  {
+    "name_en": "capybara",
+    "common": "capybara",
+    "scientific": "Hydrochoerus hydrochaeris"
+  },
+  {
+    "name_en": "chinchilla",
+    "common": "chinchilla",
+    "scientific": "Chinchilla chinchilla"
+  },
+  {
+    "name_en": "naked mole rat",
+    "common": "naked mole rat",
+    "scientific": "Heterocephalus glaber"
+  },
+  {
+    "name_en": "cockatoo",
+    "common": "cockatoo",
+    "scientific": "Cacatua goffiniana"
+  },
+  {
+    "name_en": "monarch butterfly",
+    "common": "monarch butterfly",
+    "scientific": "Danaus plexippus"
+  },
+  {
+    "name_en": "earwig",
+    "common": "earwig",
+    "scientific": "Forficula auricularia"
+  },
+  {
+    "name_en": "lynx",
+    "common": "lynx",
+    "scientific": "Lynx lynx"
+  },
+  {
+    "name_en": "cockatiel",
+    "common": "cockatiel",
+    "scientific": "Nymphicus hollandicus"
+  },
+  {
+    "name_en": "pillbug",
+    "common": "pillbug",
+    "scientific": "Armadillidium vulgare"
+  },
+  {
+    "name_en": "great white shark",
+    "common": "great white shark",
+    "scientific": "Carcharodon carcharias"
+  },
+  {
+    "name_en": "fire ant",
+    "common": "fire ant",
+    "scientific": "Solenopsis invicta"
+  },
+  {
+    "name_en": "two-toed sloth",
+    "common": "two-toed sloth",
+    "scientific": "Choloepus didactylus"
+  },
+  {
+    "name_en": "bass",
+    "common": "bass",
+    "scientific": "Micropterus salmoides"
+  },
+  {
+    "name_en": "sea turtle",
+    "common": "sea turtle",
+    "scientific": "Dermochelys coriacea"
+  },
+  {
+    "name_en": "lions mane jellyfish",
+    "common": "lions mane jellyfish",
+    "scientific": "Cyanea capillata"
+  },
+  {
+    "name_en": "puffin",
+    "common": "puffin",
+    "scientific": "Fratercula arctica"
+  },
+  {
+    "name_en": "blue jay",
+    "common": "blue jay",
+    "scientific": "Cyanocitta cristata"
+  },
+  {
+    "name_en": "house centipede",
+    "common": "house centipede",
+    "scientific": "Scutigera coleoptrata"
+  },
+  {
+    "name_en": "kinkajou",
+    "common": "kinkajou",
+    "scientific": "Potos flavus"
+  },
+  {
+    "name_en": "polar bear",
+    "common": "polar bear",
+    "scientific": "Ursus maritimus"
+  },
+  {
+    "name_en": "wombat",
+    "common": "wombat",
+    "scientific": "Vombatus ursinus"
+  },
+  {
+    "name_en": "mackerel",
+    "common": "mackerel",
+    "scientific": "Scomber australasicus"
+  },
+  {
+    "name_en": "oyster",
+    "common": "oyster",
+    "scientific": "Magallana gigas"
+  },
+  {
+    "name_en": "wasp",
+    "common": "wasp",
+    "scientific": "Vespula pensylvanica"
+  },
+  {
+    "name_en": "yak",
+    "common": "yak",
+    "scientific": "Bos grunniens"
+  },
+  {
+    "name_en": "alpaca",
+    "common": "alpaca",
+    "scientific": "Vicugna pacos"
+  },
+  {
+    "name_en": "skunk",
+    "common": "skunk",
+    "scientific": "Mephitis mephitis"
+  },
+  {
+    "name_en": "badger",
+    "common": "badger",
+    "scientific": "Taxidea taxus"
+  },
+  {
+    "name_en": "tamarin",
+    "common": "tamarin",
+    "scientific": "Leontopithecus rosalia"
+  },
+  {
+    "name_en": "squirrel",
+    "common": "squirrel",
+    "scientific": "Sciurus carolinensis"
+  },
+  {
+    "name_en": "cheetah",
+    "common": "cheetah",
+    "scientific": "Acinonyx jubatus"
+  },
+  {
+    "name_en": "ocelot",
+    "common": "ocelot",
+    "scientific": "Leopardus pardalis"
+  },
+  {
+    "name_en": "black vulture",
+    "common": "black vulture",
+    "scientific": "Coragyps atratus"
+  },
+  {
+    "name_en": "bigfin squid",
+    "common": "bigfin squid",
+    "scientific": "Sepioteuthis lessoniana"
+  },
+  {
+    "name_en": "nautilus",
+    "common": "nautilus",
+    "scientific": "Nautilus belauensis"
+  },
+  {
+    "name_en": "tick",
+    "common": "tick",
+    "scientific": "Ixodes ricinus"
+  },
+  {
+    "name_en": "sea otter",
+    "common": "sea otter",
+    "scientific": "Enhydra lutris"
+  },
+  {
+    "name_en": "sugar glider",
+    "common": "sugar glider",
+    "scientific": "Petaurus breviceps"
+  },
+  {
+    "name_en": "magpie",
+    "common": "magpie",
+    "scientific": "Pica pica"
+  },
+  {
+    "name_en": "seagull",
+    "common": "seagull",
+    "scientific": "Larus argentatus"
+  },
+  {
+    "name_en": "wren",
+    "common": "wren",
+    "scientific": "Troglodytes troglodytes"
+  },
+  {
+    "name_en": "salamander",
+    "common": "salamander",
+    "scientific": "Hynobius retardatus"
+  },
+  {
+    "name_en": "termite",
+    "common": "termite",
+    "scientific": "Coptotermes formosanus"
+  },
+  {
+    "name_en": "meerkat",
+    "common": "meerkat",
+    "scientific": "Suricata suricatta"
+  },
+  {
+    "name_en": "antelope",
+    "common": "antelope",
+    "scientific": "Hippotragus niger"
+  },
+  {
+    "name_en": "capuchin",
+    "common": "capuchin",
+    "scientific": "Cebus olivaceus"
+  },
+  {
+    "name_en": "finch",
+    "common": "finch",
+    "scientific": "Pyrrhula pyrrhula"
+  },
+  {
+    "name_en": "robin",
+    "common": "robin",
+    "scientific": "Erithacus rubecula"
+  },
+  {
+    "name_en": "gazelle",
+    "common": "gazelle",
+    "scientific": "Gazella dorcas"
+  },
+  {
+    "name_en": "koala",
+    "common": "koala",
+    "scientific": "Phascolarctos cinereus"
+  },
+  {
+    "name_en": "narwhal",
+    "common": "narwhal",
+    "scientific": "Monodon monoceros"
+  },
+  {
+    "name_en": "ladybug",
+    "common": "ladybug",
+    "scientific": "Coccinella septempunctata"
+  },
+  {
+    "name_en": "warthog",
+    "common": "warthog",
+    "scientific": "Phacochoerus africanus"
+  },
+  {
+    "name_en": "piranha",
+    "common": "piranha",
+    "scientific": "Pygocentrus nattereri"
+  },
+  {
+    "name_en": "swallow",
+    "common": "swallow",
+    "scientific": "Hirundo rustica"
+  },
+  {
+    "name_en": "turkey vulture",
+    "common": "turkey vulture",
+    "scientific": "Cathartes aura"
+  },
+  {
+    "name_en": "cicada",
+    "common": "cicada",
+    "scientific": "Magicicada septendecim"
+  },
+  {
+    "name_en": "chipmunk",
+    "common": "chipmunk",
+    "scientific": "Tamias striatus"
+  },
+  {
+    "name_en": "prairie dog",
+    "common": "prairie dog",
+    "scientific": "Cynomys ludovicianus"
+  },
+  {
+    "name_en": "tardigrade",
+    "common": "tardigrade",
+    "scientific": "Milnesium tardigradum"
+  },
+  {
+    "name_en": "albatross",
+    "common": "albatross",
+    "scientific": "Diomedea exulans"
+  },
+  {
+    "name_en": "hare",
+    "common": "hare",
+    "scientific": "Lepus californicus"
+  },
+  {
+    "name_en": "wolverine",
+    "common": "wolverine",
+    "scientific": "Gulo gulo"
+  },
+  {
+    "name_en": "sparrow",
+    "common": "sparrow",
+    "scientific": "Passer domesticus"
+  },
+  {
+    "name_en": "flea",
+    "common": "flea",
+    "scientific": "Ctenocephalides canis"
+  },
+  {
+    "name_en": "silverfish",
+    "common": "silverfish",
+    "scientific": "Lepisma saccharinum"
+  },
+  {
+    "name_en": "beaver",
+    "common": "beaver",
+    "scientific": "Castor canadensis"
+  },
+  {
+    "name_en": "woodpecker",
+    "common": "woodpecker",
+    "scientific": "Dryocopus pileatus"
+  },
+  {
+    "name_en": "anaconda",
+    "common": "anaconda",
+    "scientific": "Eunectes murinus"
+  },
+  {
+    "name_en": "macaw",
+    "common": "macaw",
+    "scientific": "Anodorhynchus hyacinthinus"
+  },
+  {
+    "name_en": "parakeet",
+    "common": "parakeet",
+    "scientific": "Aratinga nenday"
+  },
+  {
+    "name_en": "poison frog",
+    "common": "poison frog",
+    "scientific": "Oophaga histrionica"
+  },
+  {
+    "name_en": "bald eagle",
+    "common": "bald eagle",
+    "scientific": "Haliaeetus leucocephalus"
+  },
+  {
+    "name_en": "kite",
+    "common": "kite",
+    "scientific": "Milvus migrans"
+  },
+  {
+    "name_en": "newt",
+    "common": "newt",
+    "scientific": "Ichthyosaura alpestris"
+  },
+  {
+    "name_en": "weasel",
+    "common": "weasel",
+    "scientific": "Mustela frenata"
+  },
+  {
+    "name_en": "emperor scorpion",
+    "common": "emperor scorpion",
+    "scientific": "Pandinus imperator"
+  },
+  {
+    "name_en": "vampire squid",
+    "common": "vampire squid",
+    "scientific": "Vampyroteuthis infernalis"
+  },
+  {
+    "name_en": "heron",
+    "common": "heron",
+    "scientific": "Ardea herodias"
+  },
+  {
+    "name_en": "osprey",
+    "common": "osprey",
+    "scientific": "Pandion haliaetus"
+  },
+  {
+    "name_en": "barn owl",
+    "common": "barn owl",
+    "scientific": "Tyto alba"
+  },
+  {
+    "name_en": "kestrel",
+    "common": "kestrel",
+    "scientific": "Falco sparverius"
+  },
+  {
+    "name_en": "raven",
+    "common": "raven",
+    "scientific": "Corvus corax"
+  },
+  {
+    "name_en": "grey parrot",
+    "common": "grey parrot",
+    "scientific": "Psittacus erithacus"
+  },
+  {
+    "name_en": "goblin shark",
+    "common": "goblin shark",
+    "scientific": "Mitsukurina owstoni"
+  },
+  {
+    "name_en": "cricket",
+    "common": "cricket",
+    "scientific": "Gryllus campestris"
+  },
+  {
+    "name_en": "mockingbird",
+    "common": "mockingbird",
+    "scientific": "Mimus polyglottos"
+  },
+  {
+    "name_en": "komodo dragon",
+    "common": "komodo dragon",
+    "scientific": "Varanus komodoensis"
+  },
+  {
+    "name_en": "bobcat",
+    "common": "bobcat",
+    "scientific": "Lynx rufus"
+  },
+  {
+    "name_en": "gibbon",
+    "common": "gibbon",
+    "scientific": "Nomascus leucogenys"
+  },
+  {
+    "name_en": "atlas moth",
+    "common": "atlas moth",
+    "scientific": "Attacus atlas"
+  },
+  {
+    "name_en": "tortoise",
+    "common": "tortoise",
+    "scientific": "Chelonoidis niger"
+  },
+  {
+    "name_en": "jackal",
+    "common": "jackal",
+    "scientific": "Canis aureus"
+  },
+  {
+    "name_en": "barracuda",
+    "common": "barracuda",
+    "scientific": "Sphyraena barracuda"
+  },
+  {
+    "name_en": "ibex",
+    "common": "ibex",
+    "scientific": "Capra ibex"
+  },
+  {
+    "name_en": "river otter",
+    "common": "river otter",
+    "scientific": "Lontra canadensis"
+  },
+  {
+    "name_en": "macaroni penguin",
+    "common": "macaroni penguin",
+    "scientific": "Eudyptes chrysolophus"
+  },
+  {
+    "name_en": "oarfish",
+    "common": "oarfish",
+    "scientific": "Regalecus glesne"
+  },
+  {
+    "name_en": "anteater",
+    "common": "anteater",
+    "scientific": "Cyclopes didactylus"
+  },
+  {
+    "name_en": "crow",
+    "common": "crow",
+    "scientific": "Corvus brachyrhynchos"
+  },
+  {
+    "name_en": "zebra",
+    "common": "zebra",
+    "scientific": "Equus quagga"
+  },
+  {
+    "name_en": "water buffalo",
+    "common": "water buffalo",
+    "scientific": "Bubalus bubalis"
+  },
+  {
+    "name_en": "chameleon",
+    "common": "chameleon",
+    "scientific": "Chamaeleo chamaeleon"
+  },
+  {
+    "name_en": "civet",
+    "common": "civet",
+    "scientific": "Civettictis civetta"
+  },
+  {
+    "name_en": "toucan",
+    "common": "toucan",
+    "scientific": "Ramphastos toco"
+  },
+  {
+    "name_en": "skink",
+    "common": "skink",
+    "scientific": "Tiliqua gigas"
+  },
+  {
+    "name_en": "baboon",
+    "common": "baboon",
+    "scientific": "Papio papio"
+  },
+  {
+    "name_en": "blue-ringed octopus",
+    "common": "blue-ringed octopus",
+    "scientific": "Hapalochlaena lunulata"
+  },
+  {
+    "name_en": "krill",
+    "common": "krill",
+    "scientific": "Euphausia pacifica"
+  },
+  {
+    "name_en": "carpenter ant",
+    "common": "carpenter ant",
+    "scientific": "Camponotus floridanus"
+  },
+  {
+    "name_en": "seahorse",
+    "common": "seahorse",
+    "scientific": "Hippocampus comes"
+  },
+  {
+    "name_en": "barnacle",
+    "common": "barnacle",
+    "scientific": "Balanus glandula"
+  },
+  {
+    "name_en": "egret",
+    "common": "egret",
+    "scientific": "Ardea alba"
+  },
+  {
+    "name_en": "mantis shrimp",
+    "common": "mantis shrimp",
+    "scientific": "Odontodactylus scyllarus"
+  },
+  {
+    "name_en": "flying fish",
+    "common": "flying fish",
+    "scientific": "Cheilopogon melanurus"
+  },
+  {
+    "name_en": "green tree python",
+    "common": "green tree python",
+    "scientific": "Morelia viridis"
+  },
+  {
+    "name_en": "bumble bee",
+    "common": "bumble bee",
+    "scientific": "Bombus impatiens"
+  },
+  {
+    "name_en": "dove",
+    "common": "dove",
+    "scientific": "Leptotila verreauxi"
+  },
+  {
+    "name_en": "box turtle",
+    "common": "box turtle",
+    "scientific": "Terrapene carolina"
+  },
+  {
+    "name_en": "clownfish",
+    "common": "clownfish",
+    "scientific": "Amphiprion percula"
+  },
+  {
+    "name_en": "canary",
+    "common": "canary",
+    "scientific": "Crithagra flaviventris"
+  },
+  {
+    "name_en": "dung beetle",
+    "common": "dung beetle",
+    "scientific": "Scarabaeus sacer"
+  },
+  {
+    "name_en": "man o war",
+    "common": "man o war",
+    "scientific": "Physalia physalis"
+  },
+  {
+    "name_en": "burmese python",
+    "common": "burmese python",
+    "scientific": "Python bivittatus"
+  },
+  {
+    "name_en": "coconut crab",
+    "common": "coconut crab",
+    "scientific": "Birgus latro"
+  },
+  {
+    "name_en": "howler monkey",
+    "common": "howler monkey",
+    "scientific": "Alouatta pigra"
+  },
+  {
+    "name_en": "caiman",
+    "common": "caiman",
+    "scientific": "Caiman latirostris"
+  },
+  {
+    "name_en": "hammerhead shark",
+    "common": "hammerhead shark",
+    "scientific": "Sphyrna mokarran"
+  },
+  {
+    "name_en": "halibut",
+    "common": "halibut",
+    "scientific": "Hippoglossus stenolepis"
+  },
+  {
+    "name_en": "sea sponge",
+    "common": "sea sponge",
+    "scientific": "Aplysina fistularis"
+  },
+  {
+    "name_en": "fire eel",
+    "common": "fire eel",
+    "scientific": "Mastacembelus erythrotaenia"
+  },
+  {
+    "name_en": "betta fish",
+    "common": "betta fish",
+    "scientific": "Betta tussyae"
+  },
+  {
+    "name_en": "water bug",
+    "common": "water bug",
+    "scientific": "Lethocerus indicus"
+  },
+  {
+    "name_en": "bark scorpion",
+    "common": "bark scorpion",
+    "scientific": "Centruroides sculpturatus"
+  },
+  {
+    "name_en": "brain coral",
+    "common": "brain coral",
+    "scientific": "Diploria labyrinthiformis"
+  },
+  {
+    "name_en": "flying squirrel",
+    "common": "flying squirrel",
+    "scientific": "Hylopetes nigripes"
+  },
+  {
+    "name_en": "giant squid",
+    "common": "giant squid",
+    "scientific": "Architeuthis dux"
+  },
+  {
+    "name_en": "whale shark",
+    "common": "whale shark",
+    "scientific": "Rhincodon typus"
+  },
+  {
+    "name_en": "tarantula",
+    "common": "tarantula",
+    "scientific": "Theraphosa blondi"
+  },
+  {
+    "name_en": "pigeon",
+    "common": "pigeon",
+    "scientific": "Hemiphaga novaeseelandiae"
+  },
+  {
+    "name_en": "giant octopus",
+    "common": "giant octopus",
+    "scientific": "Enteroctopus dofleini"
+  },
+  {
+    "name_en": "cellar spider",
+    "common": "cellar spider",
+    "scientific": "Pholcus opilionoides"
+  },
+  {
+    "name_en": "millipede",
+    "common": "millipede",
+    "scientific": "Oxidus gracilis"
+  },
+  {
+    "name_en": "orbweaver spider",
+    "common": "orbweaver spider",
+    "scientific": "Nephila pilipes"
+  },
+  {
+    "name_en": "scallop",
+    "common": "scallop",
+    "scientific": "Pecten novaezelandiae"
+  },
+  {
+    "name_en": "gecko",
+    "common": "gecko",
+    "scientific": "Lygodactylus capensis"
+  },
+  {
+    "name_en": "kiwi",
+    "common": "kiwi",
+    "scientific": "Apteryx rowi"
+  },
+  {
+    "name_en": "lamprey",
+    "common": "lamprey",
+    "scientific": "Eudontomyzon mariae"
+  },
+  {
+    "name_en": "armadillo",
+    "common": "armadillo",
+    "scientific": "Chaetophractus vellerosus"
+  },
+  {
+    "name_en": "pufferfish",
+    "common": "pufferfish",
+    "scientific": "Arothron meleagris"
+  },
+  {
+    "name_en": "snowy owl",
+    "common": "snowy owl",
+    "scientific": "Bubo scandiacus"
+  },
+  {
+    "name_en": "nightingale",
+    "common": "nightingale",
+    "scientific": "Luscinia megarhynchos"
+  },
+  {
+    "name_en": "flamingo",
+    "common": "flamingo",
+    "scientific": "Phoenicopterus roseus"
+  },
+  {
+    "name_en": "harvestman",
+    "common": "harvestman",
+    "scientific": "Rilaena triangularis"
+  },
+  {
+    "name_en": "tanuki",
+    "common": "tanuki",
+    "scientific": "Nyctereutes procyonoides viverrinus"
+  },
+  {
+    "name_en": "arctic fox",
+    "common": "arctic fox",
+    "scientific": "Vulpes lagopus"
+  },
+  {
+    "name_en": "fruit bat",
+    "common": "fruit bat",
+    "scientific": "Acerodon jubatus"
+  },
+  {
+    "name_en": "sea cucumber",
+    "common": "sea cucumber",
+    "scientific": "Actinopyga echinites"
+  },
+  {
+    "name_en": "moray eel",
+    "common": "moray eel",
+    "scientific": "Enchelycore pardalis"
+  },
+  {
+    "name_en": "huntsman spider",
+    "common": "huntsman spider",
+    "scientific": "Heteropoda maxima"
+  },
+  {
+    "name_en": "hawk",
+    "common": "hawk",
+    "scientific": "Accipiter gundlachi"
+  },
+  {
+    "name_en": "hermit crab",
+    "common": "hermit crab",
+    "scientific": "Dardanus calidus"
+  },
+  {
+    "name_en": "hercules beetle",
+    "common": "hercules beetle",
+    "scientific": "Dynastes hercules"
+  },
+  {
+    "name_en": "tarantula hawk wasp",
+    "common": "tarantula hawk wasp",
+    "scientific": "Pepsis grossa"
+  },
+  {
+    "name_en": "sand dollar",
+    "common": "sand dollar",
+    "scientific": "Mellita quinquiesperforata"
+  },
+  {
+    "name_en": "velvet worm",
+    "common": "velvet worm",
+    "scientific": "Eoperipatus totoro"
+  },
+  {
+    "name_en": "elk",
+    "common": "elk",
+    "scientific": "Cervus canadensis"
+  },
+  {
+    "name_en": "dragonfly",
+    "common": "dragonfly",
+    "scientific": "Aeshna canadensis"
+  },
+  {
+    "name_en": "fiddler crab",
+    "common": "fiddler crab",
+    "scientific": "Tubuca urvillei"
+  },
+  {
+    "name_en": "mayfly",
+    "common": "mayfly",
+    "scientific": "Rhithrogena germanica"
+  },
+  {
+    "name_en": "manta ray",
+    "common": "manta ray",
+    "scientific": "Mobula birostris"
+  },
+  {
+    "name_en": "banana slug",
+    "common": "banana slug",
+    "scientific": "Ariolimax columbianus"
+  },
+  {
+    "name_en": "hummingbird",
+    "common": "hummingbird",
+    "scientific": "Mellisuga helenae"
+  },
+  {
+    "name_en": "pistol shrimp",
+    "common": "pistol shrimp",
+    "scientific": "Alpheus digitalis"
+  },
+  {
+    "name_en": "sting ray",
+    "common": "sting ray",
+    "scientific": "Hypanus americanus"
+  },
+  {
+    "name_en": "giant centipede",
+    "common": "giant centipede",
+    "scientific": "Scolopendra cataracta"
+  }
+]

@@ -3,19 +3,18 @@ package au.id.tmm.metazooa.exploring.buildingtrees
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-import au.id.tmm.collections.{NonEmptyArraySeq, NonEmptySet}
 import au.id.tmm.collections.cats.instances.nonEmptyArraySeq.*
+import au.id.tmm.collections.{NonEmptyArraySeq, NonEmptySet}
 import au.id.tmm.fetch.files.Text
 import au.id.tmm.metazooa.exploring.tree.*
 import au.id.tmm.utilities.errors.{ExceptionOr, GenericException}
-import cats.implicits.toNonEmptyTraverseOps
 import cats.effect.IO
-import cats.implicits.toTraverseOps
+import cats.implicits.{toNonEmptyTraverseOps, toTraverseOps}
+import io.circe.Decoder
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
-import scala.util.matching.Regex
 
 /**
   * Computes the full metazooa tree from a list of species/ncbi IDs stored in a resource
@@ -88,8 +87,8 @@ private[buildingtrees] object ComputingFullMetazooaTree {
       (bottomOfTreeLookup.get(ncbiId), childrenLookup.get(ncbiId)) match {
         case (Some(processedSpecies: ProcessedSpecies), None) =>
           processedSpecies
-        case (Some(_processedSpecies @ _), Some(_children @ _)) =>
-          throw new AssertionError("Species with children")
+        case (Some(processedSpecies @ _), Some(children @ _)) =>
+          throw new AssertionError(s"Species with children: ${processedSpecies} has $children")
         case (Some(_: UnnamedClade), None) =>
           throw new AssertionError("Clade on the bottom of tree")
         case (None, Some(children)) =>
@@ -145,16 +144,13 @@ private[buildingtrees] object ComputingFullMetazooaTree {
   }
 
   private val actualSpeciesRecords: IO[ArraySeq[ActualSpeciesRecord]] =
-    fs2.io
-      .readClassResource[IO, ComputingFullMetazooaTree.type]("actual-metazooa-species.csv")
-      .through(Text.lines(StandardCharsets.UTF_8))
-      .evalMap {
-        case ActualSpeciesRecord.Regex(commonName, scientificName) =>
-          IO.pure(ActualSpeciesRecord(commonName, scientificName))
-        case badRow => IO.raiseError(GenericException(s"Bad row '${badRow}'"))
-      }
-      .compile
-      .to(ArraySeq)
+    for {
+      asString <- Text.string(
+        IO(getClass.getResourceAsStream("actual-metazooa-species.json")),
+        StandardCharsets.UTF_8
+      )
+      records <- IO.fromEither(io.circe.parser.decode[ArraySeq[ActualSpeciesRecord]](asString))
+    } yield records
 
   private final case class ActualSpeciesRecord(
     commonName: String,
@@ -162,7 +158,12 @@ private[buildingtrees] object ComputingFullMetazooaTree {
   )
 
   private object ActualSpeciesRecord {
-    val Regex: Regex = """"(.+)","(.+)"""".r
+    implicit val decoder: Decoder[ActualSpeciesRecord] = c =>
+      for {
+        commonName <- c.get[String]("common")
+        scientificName <- c.get[String]("scientific")
+      } yield ActualSpeciesRecord(commonName, scientificName)
+
   }
 
   sealed trait PartiallyProcessedTaxon {

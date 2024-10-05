@@ -2,7 +2,7 @@ package au.id.tmm.metazooa.exploring.mucking
 
 import au.id.tmm.metazooa.exploring.ActualMetazooaTree
 import au.id.tmm.metazooa.exploring.game.Rules
-import au.id.tmm.metazooa.exploring.strategies.narrowing.SmartMostNarrowing
+import au.id.tmm.metazooa.exploring.strategies.narrowing.{NarrowingApproach, SmartMostNarrowing}
 import au.id.tmm.metazooa.exploring.strategies.{HintRules, Strategy, StrategyTester}
 import cats.effect.{IO, IOApp, Resource}
 import cats.syntax.traverse.*
@@ -10,7 +10,12 @@ import cats.syntax.traverse.*
 object TestStrategy extends IOApp.Simple {
 
   private def strategyToTest: Resource[IO, Strategy[IO]] =
-    Resource.eval(SmartMostNarrowing[IO](hintRules = HintRules.HintsAllowed))
+    Resource.eval {
+      SmartMostNarrowing[IO](
+        hintRules = HintRules.HintsAllowed,
+        narrowingApproach = NarrowingApproach.MeanLeastRemaining,
+      )
+    }
 
   override def run: IO[Unit] =
     for {
