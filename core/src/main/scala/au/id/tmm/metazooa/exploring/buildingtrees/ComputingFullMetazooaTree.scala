@@ -146,7 +146,7 @@ private[buildingtrees] object ComputingFullMetazooaTree {
     for {
       asString <- Text.string(
         IO(getClass.getResourceAsStream("actual-metazooa-species.json")),
-        StandardCharsets.UTF_8
+        StandardCharsets.UTF_8,
       )
       records <- IO.fromEither(io.circe.parser.decode[ArraySeq[ActualSpeciesRecord]](asString))
     } yield records
@@ -159,7 +159,7 @@ private[buildingtrees] object ComputingFullMetazooaTree {
   private object ActualSpeciesRecord {
     implicit val decoder: Decoder[ActualSpeciesRecord] = c =>
       for {
-        commonName <- c.get[String]("common")
+        commonName     <- c.get[String]("common")
         scientificName <- c.get[String]("scientific")
       } yield ActualSpeciesRecord(commonName, scientificName)
 

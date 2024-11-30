@@ -79,7 +79,7 @@ private[strategies] object GuessScoring {
           guess -> score
         }
 
-    println(scores.sortBy(_._2).take(10).mkString("[\n\t","\n\t","\n]")) // TODO rm
+    println(scores.sortBy(_._2).take(10).mkString("[\n\t", "\n\t", "\n]")) // TODO rm
 
     approach.reduce(scores)
   }
