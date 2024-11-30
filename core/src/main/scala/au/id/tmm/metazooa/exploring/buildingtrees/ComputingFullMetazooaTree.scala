@@ -88,7 +88,8 @@ private[buildingtrees] object ComputingFullMetazooaTree {
         case (Some(processedSpecies: ProcessedSpecies), None) =>
           processedSpecies
         case (Some(processedSpecies: ProcessedSpecies), Some(children @ _)) =>
-          throw new AssertionError(s"Species with children: $processedSpecies has children $children")
+//          throw new AssertionError(s"Species with children: $processedSpecies has children $children")
+          UnnamedClade(ncbiId, Set(processedSpecies) ++ children.map(buildPartiallyProcessedTaxonFor).toSet)
         case (None, Some(children)) =>
           UnnamedClade(ncbiId, children.map(buildPartiallyProcessedTaxonFor).toSet)
         case (None, None) =>
