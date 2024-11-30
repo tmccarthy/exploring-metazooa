@@ -57,7 +57,7 @@ private[buildingtrees] object ComputingFullMetazooaTree {
     bottomOfTree: NonEmptySet[ProcessedSpecies],
     identifyParent: NcbiId => Option[NcbiId],
   ): UnnamedClade = {
-    val bottomOfTreeLookup: Map[NcbiId, PartiallyProcessedTaxon] =
+    val bottomOfTreeLookup: Map[NcbiId, ProcessedSpecies] =
       bottomOfTree
         .map(t => t.ncbiId -> t)
         .toMap
@@ -87,10 +87,8 @@ private[buildingtrees] object ComputingFullMetazooaTree {
       (bottomOfTreeLookup.get(ncbiId), childrenLookup.get(ncbiId)) match {
         case (Some(processedSpecies: ProcessedSpecies), None) =>
           processedSpecies
-        case (Some(processedSpecies @ _), Some(children @ _)) =>
-          throw new AssertionError(s"Species with children: ${processedSpecies} has $children")
-        case (Some(_: UnnamedClade), None) =>
-          throw new AssertionError("Clade on the bottom of tree")
+        case (Some(processedSpecies: ProcessedSpecies), Some(children @ _)) =>
+          throw new AssertionError(s"Species with children: $processedSpecies has children $children")
         case (None, Some(children)) =>
           UnnamedClade(ncbiId, children.map(buildPartiallyProcessedTaxonFor).toSet)
         case (None, None) =>
