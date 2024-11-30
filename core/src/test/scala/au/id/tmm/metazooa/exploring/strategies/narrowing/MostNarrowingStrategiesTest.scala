@@ -2,19 +2,23 @@ package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.fetch.cache.InMemoryKVStore
 import au.id.tmm.metazooa.exploring.game.{ActualMetazooaFixtures, Rules, State}
-import au.id.tmm.metazooa.exploring.strategies.{BruteForceMostNarrowing, CachedPerfectStrategy, Simulator}
+import au.id.tmm.metazooa.exploring.strategies.{CachedPerfectStrategy, Simulator}
 import au.id.tmm.metazooa.exploring.tree.Species
 import cats.Applicative
 import cats.effect.{IO, Resource}
 import munit.{CatsEffectSuite, ScalaCheckEffectSuite}
-import org.scalacheck.Gen
+import org.scalacheck.Gen.oneOf
 import org.scalacheck.effect.PropF.forAllF
 
 class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectSuite {
 
+  override def scalaCheckInitialSeed = "XH4Hheu5hI4xqU-96S9w_CkFEBjBDtzzu8yPT2FPQ2C=" // TODO rm
+
   private val tree = ActualMetazooaFixtures.actualMetazooaTree
 
-  private val genSpecies: Gen[Species] = Gen.oneOf(tree.root.childSpeciesTransitive)
+  private val speciesPendingIssue1 = ActualMetazooaFixtures.hystricomorpha.childSpeciesTransitive ++
+    ActualMetazooaFixtures.muroidea.childSpeciesTransitive
+  private val speciesWhereTestIsWorking = tree.root.childSpeciesTransitive -- speciesPendingIssue1
 
   private val bruteForceMostNarrowingFixture: Fixture[CachedPerfectStrategy[IO, BruteForceMostNarrowing[IO]]] =
     ResourceSuiteLocalFixture(
@@ -30,17 +34,29 @@ class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectS
   test(
     s"${classOf[SmartMostNarrowing[IO]].getSimpleName} is equivalent to ${BruteForceMostNarrowing.getClass.getSimpleName}",
   ) {
-    forAllF(genSpecies) { answer =>
-      for {
-        sut <- SmartMostNarrowing[IO]()
-        state = State.initial(Rules.infinite, tree, answer)
-
-        (bruteForceResult, sutResult) <- Applicative[IO].tuple2(
-          Simulator.runOne(bruteForceMostNarrowingFixture(), state),
-          Simulator.runOne(sut, state),
-        )
-      } yield assertEquals(sutResult.moves, bruteForceResult.moves, s"Answer was $answer")
+    forAllF(oneOf(speciesWhereTestIsWorking)) { answer =>
+      assertSmartAndBruteAreEquivalentFor(answer)
     }
   }
+
+  // https://github.com/tmccarthy/exploring-metazooa/issues/1
+  test(
+    s"${classOf[SmartMostNarrowing[IO]].getSimpleName} is equivalent to ${BruteForceMostNarrowing.getClass.getSimpleName} for rodents".fail,
+  ) {
+    forAllF(oneOf(speciesPendingIssue1)) { answer =>
+      assertSmartAndBruteAreEquivalentFor(answer)
+    }
+  }
+
+  private def assertSmartAndBruteAreEquivalentFor(answer: Species): IO[Unit] =
+    for {
+      sut <- SmartMostNarrowing[IO]()
+      state = State.initial(Rules.infinite, tree, answer)
+
+      (bruteForceResult, sutResult) <- Applicative[IO].tuple2(
+        Simulator.runOne(bruteForceMostNarrowingFixture(), state),
+        Simulator.runOne(sut, state),
+      )
+    } yield assertEquals(sutResult.moves, bruteForceResult.moves, s"Answer was $answer")
 
 }

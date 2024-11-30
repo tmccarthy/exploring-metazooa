@@ -7,7 +7,7 @@ import munit.FunSuite
 class GameUtilitiesTest extends FunSuite {
 
   test("allPossibleGuesses for empty") {
-    assertEquals(GameUtilities.allPossibleSpecies(cleanState(answer = human).visibleToPlayer).size, 269)
+    assertEquals(GameUtilities.allPossibleSpecies(cleanState(answer = human).visibleToPlayer).size, 329)
   }
 
   test("allPossibleGuesses for sponge") {

@@ -23,7 +23,7 @@ class GuessScoringTest extends FunSuite {
       assertEquals(mean(actualRemainingDistribution), expectedMeanRemaining, expectedMeanRemaining.toDouble)
     }
 
-  expectedRemainingAfterInitialGuess("sea sponge", Rational(71824, 269))
-  expectedRemainingAfterInitialGuess("weasel", Rational(10326, 269))
+  expectedRemainingAfterInitialGuess("sea sponge", Rational(107584, 329))
+  expectedRemainingAfterInitialGuess("weasel", Rational(15276, 329))
 
 }

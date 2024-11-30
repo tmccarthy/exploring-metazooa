@@ -59,6 +59,8 @@ object ActualMetazooaFixtures {
   val metazoa: Clade    = cladeWithNameUnsafe("Metazoa")
   val neognathae: Clade = cladeWithNameUnsafe("Neognathae")
   val percomorphaceae: Clade = cladeWithNameUnsafe("Percomorphaceae")
+  val hystricomorpha: Clade = cladeWithNameUnsafe("Hystricomorpha")
+  val muroidea: Clade = cladeWithNameUnsafe("Muroidea")
 
   val human: Species      = speciesWithNameUnsafe("human")
   val orangutan: Species  = speciesWithNameUnsafe("orangutan")

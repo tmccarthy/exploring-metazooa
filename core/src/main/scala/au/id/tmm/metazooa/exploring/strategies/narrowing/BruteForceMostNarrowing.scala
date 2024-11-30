@@ -1,7 +1,8 @@
-package au.id.tmm.metazooa.exploring.strategies
+package au.id.tmm.metazooa.exploring.strategies.narrowing
 
 import au.id.tmm.metazooa.exploring.game.{GameUtilities, Move, State}
-import au.id.tmm.metazooa.exploring.strategies.BruteForceMostNarrowing.{NumRemainingSpecies, Scenario, logger}
+import au.id.tmm.metazooa.exploring.strategies.Strategy
+import au.id.tmm.metazooa.exploring.strategies.narrowing.BruteForceMostNarrowing.{NumRemainingSpecies, Scenario, logger}
 import au.id.tmm.metazooa.exploring.tree.Species
 import au.id.tmm.utilities.{Fs2Utils, PartialMean}
 import cats.Id
