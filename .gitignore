@@ -1,5 +1,6 @@
 *.class
 *.log
+*.DS_Store
 
 /.idea
 *.iml
@@ -15,6 +16,7 @@ project/plugins/project/
 .history
 .cache
 .lib/
+/.bsp
 
 *.gpg
 

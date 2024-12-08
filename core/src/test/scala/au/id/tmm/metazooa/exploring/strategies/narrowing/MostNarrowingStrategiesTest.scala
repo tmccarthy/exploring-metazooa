@@ -12,8 +12,6 @@ import org.scalacheck.effect.PropF.forAllF
 
 class MostNarrowingStrategiesTest extends CatsEffectSuite with ScalaCheckEffectSuite {
 
-  override def scalaCheckInitialSeed = "XH4Hheu5hI4xqU-96S9w_CkFEBjBDtzzu8yPT2FPQ2C=" // TODO rm
-
   private val tree = ActualMetazooaFixtures.actualMetazooaTree
 
   private val speciesPendingIssue1 = ActualMetazooaFixtures.hystricomorpha.childSpeciesTransitive ++
